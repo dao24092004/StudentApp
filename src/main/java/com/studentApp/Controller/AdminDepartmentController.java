@@ -1,4 +1,4 @@
-package com.studentApp.Controller;
+package com.studentApp.controller;
 
 import java.util.List;
 
@@ -16,13 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.studentApp.dto.request.DepartmentCreationRequest;
 import com.studentApp.dto.response.DepartmentResponse;
+import com.studentApp.service.DepartmentService;
 
 @RestController
 @RequestMapping("/admin/departments")
 public class AdminDepartmentController {
 
 	@Autowired
-	private com.studentApp.Service.DepartmentService departmentService;
+	private DepartmentService departmentService;
 
 	// Get all departments
 	@GetMapping("/getall")

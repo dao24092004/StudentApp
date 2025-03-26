@@ -1,4 +1,4 @@
-package com.studentApp.Entity;
+package com.studentApp.entity;
 
 public class Schedule {
 

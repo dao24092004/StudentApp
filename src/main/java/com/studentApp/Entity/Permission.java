@@ -1,4 +1,4 @@
-package com.studentApp.Entity;
+package com.studentApp.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,4 +35,5 @@ public class Permission {
 
 	@ManyToMany(mappedBy = "permissions")
 	private List<Role> roles;
+
 }

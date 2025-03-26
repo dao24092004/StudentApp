@@ -3,8 +3,7 @@ package com.studentApp.dto.request;
 import lombok.Data;
 
 @Data
-public class DepartmentCreationRequest {
-	private String deptCode;
-	private String deptName;
+public class PermissionUpdateRequest {
+	private String permissionName;
 	private String description;
 }

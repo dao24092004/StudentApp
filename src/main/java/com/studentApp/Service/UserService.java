@@ -1,13 +1,13 @@
-package com.studentApp.Service;
+package com.studentApp.service;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.studentApp.Entity.User;
-import com.studentApp.Repository.UserRepository;
 import com.studentApp.dto.request.UserCreationRequest;
+import com.studentApp.entity.User;
+import com.studentApp.repository.UserRepository;
 
 @Service
 public class UserService {

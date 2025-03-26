@@ -6,7 +6,12 @@ public enum ErrorCode {
 	INVALID_TOKEN(1005, "Invalid token"), ROLE_NOT_FOUND(1006, "Role not found"),
 	USERNAME_ALREADY_EXISTS(1007, "Username already exists"), EMAIL_ALREADY_EXISTS(1008, "Email already exists"),
 	INVALID_OAUTH2_USER(1009, "Unable to retrieve user information from OAuth2 provider"),
-	DEPARTMENT_NOT_FOUND(1010, "Department not found"), DEPARTMENT_ALREADY_EXISTS(1011, "Department already exists");
+	DEPARTMENT_NOT_FOUND(1010, "Department not found"), DEPARTMENT_ALREADY_EXISTS(1011, "Department already exists"),
+	PERMISSION_ALREADY_EXISTS(1021, "Permeission already exists"), PERMISSION_NOT_FOUND(1022, "Permeission NOT_FOUND"),
+	PERMISSION_ALREADY_ASSIGNED(1023, "Permeission already exists"),
+	PERMISSION_NOT_ASSIGNED(1024, "Permeission NOT ASSIGNED"),
+	PERMISSION_EXISTS_ASSIGNED(1024, "Permeission EXISTS ASSIGNED"),
+	MAJOR_CODE_ALREADY_EXISTS(1026, "Major already exists");
 
 	private final int code;
 	private final String message;

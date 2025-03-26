@@ -2,8 +2,8 @@ package com.studentApp.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.studentApp.Entity.User;
 import com.studentApp.dto.response.UserResponse;
+import com.studentApp.entity.User;
 
 @Component
 public class UserMapper {

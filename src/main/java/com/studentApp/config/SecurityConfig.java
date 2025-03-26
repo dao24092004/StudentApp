@@ -26,6 +26,13 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.exceptionHandling(
+						exception -> exception.accessDeniedHandler((request, response, accessDeniedException) -> {
+							response.setStatus(403);
+							response.setContentType("application/json");
+							response.getWriter().write(
+									"{\"code\": 403, \"message\": \"Access Denied: You do not have the required permissions to access this resource.\"}");
+						}))
 				.authorizeHttpRequests(auth -> auth
 						// Public endpoints
 						.requestMatchers("/auth/login", "/auth/register").permitAll()
@@ -58,12 +65,17 @@ public class SecurityConfig {
 						.requestMatchers("/api/notifications/create").hasAuthority("NOTIFICATION_CREATE")
 						// Profile
 						.requestMatchers("/api/profile/**").hasAuthority("PROFILE_VIEW")
-
 						// Department management
 						.requestMatchers("/admin/departments/**").hasAuthority("DEPARTMENT_VIEW")
 						.requestMatchers("/admin/departments/insert").hasAuthority("DEPARTMENT_CREATE")
 						.requestMatchers("/admin/departments/update/**").hasAuthority("DEPARTMENT_UPDATE")
 						.requestMatchers("/admin/departments/delete/**").hasAuthority("DEPARTMENT_DELETE")
+						// Permission management
+						.requestMatchers("/admin/permissions").hasAuthority("PERMISSION_CREATE")
+						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_UPDATE")
+						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_DELETE")
+						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
+						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
 						// Yêu cầu xác thực cho các endpoint khác
 						.anyRequest().authenticated());
 

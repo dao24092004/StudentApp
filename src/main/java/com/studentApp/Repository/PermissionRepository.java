@@ -1,11 +1,13 @@
-package com.studentApp.Repository;
+package com.studentApp.repository;
+
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.studentApp.Entity.Permission;
+import com.studentApp.entity.Permission;
 
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
-	Permission findByPermissionName(String permissionName);
+	Optional<Permission> findByPermissionName(String permissionName);
 }

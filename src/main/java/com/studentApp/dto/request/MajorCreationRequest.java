@@ -3,8 +3,9 @@ package com.studentApp.dto.request;
 import lombok.Data;
 
 @Data
-public class DepartmentCreationRequest {
-	private String deptCode;
+public class MajorCreationRequest {
+	private String majorCode;
+	private String majorName;
 	private String deptName;
 	private String description;
 }

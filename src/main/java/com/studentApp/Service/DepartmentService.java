@@ -1,4 +1,4 @@
-package com.studentApp.Service;
+package com.studentApp.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.studentApp.Entity.Department;
-import com.studentApp.Repository.DepartmentRepository;
 import com.studentApp.dto.request.DepartmentCreationRequest;
 import com.studentApp.dto.response.DepartmentResponse;
+import com.studentApp.entity.Department;
 import com.studentApp.enums.ErrorCode;
 import com.studentApp.exception.AppException;
+import com.studentApp.repository.DepartmentRepository;
 
 @Service
 public class DepartmentService {
@@ -51,7 +51,9 @@ public class DepartmentService {
 				.orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
 		// Kiểm tra xem tên phòng ban mới có bị trùng không (trừ chính nó)
-		Department existingDepartment = departmentRepository.findByDeptName(request.getDeptName());
+		Department existingDepartment = departmentRepository.findByDeptName(request.getDeptName())
+				.orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+
 		if (existingDepartment != null && !existingDepartment.getId().equals(id)) {
 			throw new AppException(ErrorCode.DEPARTMENT_ALREADY_EXISTS);
 		}

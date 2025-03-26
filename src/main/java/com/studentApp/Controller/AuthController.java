@@ -1,4 +1,4 @@
-package com.studentApp.Controller;
+package com.studentApp.controller;
 
 import java.time.LocalDateTime;
 
@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.studentApp.Entity.Role;
-import com.studentApp.Entity.User;
-import com.studentApp.Repository.RoleRepository;
-import com.studentApp.Repository.UserRepository;
 import com.studentApp.dto.request.LoginRequest;
 import com.studentApp.dto.request.RegisterRequest;
 import com.studentApp.dto.response.LoginResponse;
 import com.studentApp.dto.response.UserResponse;
+import com.studentApp.entity.Role;
+import com.studentApp.entity.User;
 import com.studentApp.enums.ErrorCode;
 import com.studentApp.exception.AppException;
 import com.studentApp.mapper.UserMapper;
+import com.studentApp.repository.RoleRepository;
+import com.studentApp.repository.UserRepository;
 import com.studentApp.security.JwtTokenProvider;
 
 @RestController

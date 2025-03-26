@@ -1,4 +1,4 @@
-package com.studentApp.Controller;
+package com.studentApp.controller;
 
 import java.util.List;
 
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.studentApp.Entity.User;
-import com.studentApp.Service.UserService;
 import com.studentApp.dto.request.UserCreationRequest;
+import com.studentApp.entity.User;
+import com.studentApp.service.UserService;
 
 @RestController // Đổi từ @Controller sang @RestController
 @RequestMapping("/api/users") // Thêm tiền tố URL để dễ quản lý

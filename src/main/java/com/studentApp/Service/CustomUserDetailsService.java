@@ -1,4 +1,4 @@
-package com.studentApp.Service;
+package com.studentApp.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.studentApp.Entity.Permission;
-import com.studentApp.Entity.User;
-import com.studentApp.Repository.UserRepository;
+import com.studentApp.entity.Permission;
+import com.studentApp.entity.User;
 import com.studentApp.enums.ErrorCode;
 import com.studentApp.exception.AppException;
+import com.studentApp.repository.UserRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

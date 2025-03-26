@@ -1,4 +1,6 @@
-package com.studentApp.Entity;
+package com.studentApp.entity;
+
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,4 +37,10 @@ public class Major {
 
 	@Column(name = "description", length = 250)
 	private String description;
+	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	private LocalDateTime createdAt;
+
+	@Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	private LocalDateTime updatedAt;
+
 }

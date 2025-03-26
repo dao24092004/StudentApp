@@ -2,49 +2,39 @@ package com.studentApp.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.studentApp.enums.ErrorCode;
-
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(AppException.class)
 	public ResponseEntity<ErrorResponse> handleAppException(AppException ex) {
-		ErrorCode errorCode = ex.getErrorCode();
-		ErrorResponse errorResponse = new ErrorResponse(errorCode.getCode(), errorCode.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(errorCode.getCode() / 100));
-	}
-
-	@ExceptionHandler(AuthenticationException.class)
-	public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-		ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_CREDENTIALS.getCode(), ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+		ErrorResponse errorResponse = new ErrorResponse(ex.getErrorCode().getCode(), ex.getErrorCode().getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
-		ErrorResponse errorResponse = new ErrorResponse(500, "Internal Server Error: " + ex.getMessage());
+		ErrorResponse errorResponse = new ErrorResponse(500, "An unexpected error occurred: " + ex.getMessage());
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+}
 
-	public static class ErrorResponse {
-		private final int code;
-		private final String message;
+class ErrorResponse {
+	private int code;
+	private String message;
 
-		public ErrorResponse(int code, String message) {
-			this.code = code;
-			this.message = message;
-		}
+	public ErrorResponse(int code, String message) {
+		this.code = code;
+		this.message = message;
+	}
 
-		public int getCode() {
-			return code;
-		}
+	public int getCode() {
+		return code;
+	}
 
-		public String getMessage() {
-			return message;
-		}
+	public String getMessage() {
+		return message;
 	}
 }
