@@ -1,6 +1,8 @@
 package com.studentApp.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,6 +117,15 @@ public class PermissionService {
 		}
 
 		rolePermissionRepository.deleteByRoleIdAndPermissionId(role.getId(), permission.getId());
+	}
+
+	public List<PermissionResponse> getAllPermissions() {
+		List<Permission> permissions = permissionRepository.findAll();
+		List<PermissionResponse> responses = new ArrayList<>();
+		for (Permission permission : permissions) {
+			responses.add(toPermissionResponse(permission));
+		}
+		return responses;
 	}
 
 	private PermissionResponse toPermissionResponse(Permission permission) {

@@ -11,7 +11,8 @@ public enum ErrorCode {
 	PERMISSION_ALREADY_ASSIGNED(1023, "Permeission already exists"),
 	PERMISSION_NOT_ASSIGNED(1024, "Permeission NOT ASSIGNED"),
 	PERMISSION_EXISTS_ASSIGNED(1024, "Permeission EXISTS ASSIGNED"),
-	MAJOR_CODE_ALREADY_EXISTS(1026, "Major already exists");
+	MAJOR_CODE_ALREADY_EXISTS(1026, "Major already exists"), INVALID_REFRESH_TOKEN(4444, "Invalid refresh token"),
+	REFRESH_TOKEN_EXPIRED(4445, "Refresh token has expired"), INVALID_REQUEST(4446, "Invalid request"),;
 
 	private final int code;
 	private final String message;

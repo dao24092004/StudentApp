@@ -1,9 +1,12 @@
 package com.studentApp.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,6 +33,13 @@ public class AdminPermissionController {
 	@PreAuthorize("hasAuthority('PERMISSION_CREATE')")
 	public ResponseEntity<PermissionResponse> createPermission(@RequestBody PermissionCreationRequest request) {
 		PermissionResponse response = permissionService.createPermission(request);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/view/getall")
+	@PreAuthorize("hasAuthority('PERMISSION_VIEW')")
+	public ResponseEntity<List<PermissionResponse>> getAllPermissions() {
+		List<PermissionResponse> response = permissionService.getAllPermissions();
 		return ResponseEntity.ok(response);
 	}
 

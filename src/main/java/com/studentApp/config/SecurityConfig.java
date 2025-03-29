@@ -35,7 +35,7 @@ public class SecurityConfig {
 						}))
 				.authorizeHttpRequests(auth -> auth
 						// Public endpoints
-						.requestMatchers("/auth/login", "/auth/register").permitAll()
+						.requestMatchers("/auth/**").permitAll()
 						// User management
 						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW").requestMatchers("/api/users/create")
 						.hasAuthority("USER_CREATE").requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
@@ -71,7 +71,8 @@ public class SecurityConfig {
 						.requestMatchers("/admin/departments/update/**").hasAuthority("DEPARTMENT_UPDATE")
 						.requestMatchers("/admin/departments/delete/**").hasAuthority("DEPARTMENT_DELETE")
 						// Permission management
-						.requestMatchers("/admin/permissions").hasAuthority("PERMISSION_CREATE")
+						.requestMatchers("/admin/permissions/").hasAuthority("PERMISSION_CREATE")
+						.requestMatchers("/admin/permissions/view/**").hasAuthority("PERMISSION_VIEW")
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_UPDATE")
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_DELETE")
 						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
