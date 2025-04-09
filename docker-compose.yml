@@ -10,15 +10,53 @@ services:
     ports:
       - "5432:5432"
     restart: always
-  
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - truonghoc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studentApp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   redis:
     image: redis:latest
     container_name: redis
     ports:
-      - "6479:6379"
+      - "6379:6379"
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    networks:
+      - truonghoc-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/student_db
+      - SPRING_DATASOURCE_USERNAME=studentApp
+      - SPRING_DATASOURCE_PASSWORD=1234$
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    restart: unless-stopped
+    networks:
+      - truonghoc-network
+
+networks:
+  truonghoc-network:
+    driver: bridge
 
 volumes:
+  postgres-data:
   redis-data:

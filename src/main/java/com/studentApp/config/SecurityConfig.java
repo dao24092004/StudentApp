@@ -38,6 +38,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// Public endpoints
 						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
 						// User management
 						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW").requestMatchers("/api/users/create")
 						.hasAuthority("USER_CREATE").requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")

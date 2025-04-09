@@ -31,8 +31,16 @@ import com.studentApp.security.JwtTokenProvider;
 import com.studentApp.service.JwtService;
 import com.studentApp.service.TokenStorageService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "APIs for user authentication and token management")
 public class AuthController {
 
 	@Autowired
@@ -61,6 +69,11 @@ public class AuthController {
 
 	@PostMapping("/login")
 	@Transactional // Thêm @Transactional để đảm bảo giao dịch
+	@Operation(summary = "User login", description = "Authenticate user and return access and refresh tokens")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Login successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+			@ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+			@ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content) })
 	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -79,6 +92,11 @@ public class AuthController {
 
 	@PostMapping("/register")
 	@Transactional
+	@Operation(summary = "User registration", description = "Register a new user and return access and refresh tokens")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Registration successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+			@ApiResponse(responseCode = "409", description = "Username or email already exists", content = @Content),
+			@ApiResponse(responseCode = "500", description = "Internal server error", content = @Content) })
 	public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
 		// Kiểm tra username đã tồn tại
 		if (userRepository.findByUsername(registerRequest.getUsername()) != null) {
@@ -115,6 +133,10 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh-token")
+	@Operation(summary = "Refresh access token", description = "Generate a new access token using a refresh token")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Token refreshed successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+			@ApiResponse(responseCode = "401", description = "Invalid or expired refresh token", content = @Content) })
 	public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
 		String userId = tokenStorageService.getUserIdFromRefreshToken(refreshToken);
 		if (userId != null) {
@@ -128,7 +150,11 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	@Transactional // Thêm @Transactional để đảm bảo giao dịch
+	@Transactional
+	@Operation(summary = "User logout", description = "Log out user by blacklisting access token and deleting refresh token")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Logged out successfully", content = @Content),
+			@ApiResponse(responseCode = "400", description = "Invalid token or user not authenticated", content = @Content) })
 	public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
 		// Kiểm tra header Authorization
 		if (authHeader == null || !authHeader.startsWith("Bearer ")) {

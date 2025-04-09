@@ -35,6 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			String jwt = getJwtFromRequest(request);
+			String path = request.getRequestURI();
+			// Bỏ qua Swagger UI và API docs
+			if (path.startsWith("/swagger-ui") || path.startsWith("/api-docs")) {
+				filterChain.doFilter(request, response);
+				return;
+			}
 
 			if (jwt == null) {
 				System.out.println("No JWT token found in request header");
