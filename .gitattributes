@@ -1,2 +1,5 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+
+# Force GitHub to treat the repo as Java
+*.java linguist-language=Java
