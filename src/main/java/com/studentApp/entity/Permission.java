@@ -17,7 +17,7 @@ import lombok.Data;
 
 @Entity
 @Table(name = "tbl_permission")
-@Data
+@Data // Lombok will generate getters and setters for all fields
 public class Permission {
 
 	@Id
@@ -39,4 +39,5 @@ public class Permission {
 	@ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
 	@JsonBackReference
 	private List<Role> roles;
+
 }

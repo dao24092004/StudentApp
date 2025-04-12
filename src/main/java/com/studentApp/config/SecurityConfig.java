@@ -40,8 +40,9 @@ public class SecurityConfig {
 						// Public endpoints
 						.requestMatchers("/auth/**").permitAll()
 						// User management
-						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW").requestMatchers("/api/users/create")
-						.hasAuthority("USER_CREATE").requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
+						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW")
+						.requestMatchers("/api/users/create/**").hasAuthority("USER_CREATE")
+						.requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
 						.requestMatchers("/api/users/delete/**").hasAuthority("USER_DELETE")
 						// Class management
 						.requestMatchers("/api/classes/**").hasAuthority("CLASS_VIEW")
