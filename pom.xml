@@ -105,6 +105,14 @@
 
 	<build>
 		<plugins>
+
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.9.1.2184</version>
+			</plugin>
+
+
 			<!-- Maven Compiler Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -120,6 +128,34 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+
+
+			<!-- Plugin SpotBugs để kiểm tra lỗi mã tĩnh -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.8.3.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Plugin OWASP Dependency-Check để kiểm tra lỗ hổng thư viện -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>8.4.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<!-- Spring Boot Plugin -->
 			<plugin>
