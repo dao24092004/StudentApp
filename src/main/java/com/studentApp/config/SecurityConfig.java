@@ -80,6 +80,12 @@ public class SecurityConfig {
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_DELETE")
 						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
 						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
+
+						// Teacher management
+						.requestMatchers("/api/teacher/**").hasAuthority("TEACHER_VIEW").requestMatchers("/api/teacher/create")
+						.hasAuthority("TEACHER_CREATE").requestMatchers("/api/teacher/update/**").hasAuthority("TEACHER_UPDATE")
+						.requestMatchers("/api/teacher/delete/**").hasAuthority("TEACHER_DELETE")
+
 						// Yêu cầu xác thực cho các endpoint khác
 						.anyRequest().authenticated());
 

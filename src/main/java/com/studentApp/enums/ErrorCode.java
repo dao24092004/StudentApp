@@ -1,5 +1,7 @@
 package com.studentApp.enums;
 
+import java.security.Permission;
+
 public enum ErrorCode {
 	USER_NOT_FOUND(1001, "User not found"), INVALID_CREDENTIALS(1002, "Invalid username or password"),
 	UNAUTHORIZED(1003, "Unauthorized access"), TOKEN_EXPIRED(1004, "Token has expired"),
@@ -12,7 +14,8 @@ public enum ErrorCode {
 	PERMISSION_NOT_ASSIGNED(1024, "Permeission NOT ASSIGNED"),
 	PERMISSION_EXISTS_ASSIGNED(1024, "Permeission EXISTS ASSIGNED"),
 	MAJOR_CODE_ALREADY_EXISTS(1026, "Major already exists"), INVALID_REFRESH_TOKEN(4444, "Invalid refresh token"),
-	REFRESH_TOKEN_EXPIRED(4445, "Refresh token has expired"), INVALID_REQUEST(4446, "Invalid request"),;
+	REFRESH_TOKEN_EXPIRED(4445, "Refresh token has expired"), INVALID_REQUEST(4446, "Invalid request"),
+	TEACHER_NOT_FOUND(3001, "Teacher not found"),TEACHER_ALLREADY_EXISTS(3002, "Teacher allready exists"),;
 
 	private final int code;
 	private final String message;
