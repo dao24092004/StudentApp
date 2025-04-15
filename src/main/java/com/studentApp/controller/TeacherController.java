@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/api/classes")
+@RequestMapping("/api/users")
 public class TeacherController {
 
     @Autowired
@@ -46,7 +46,7 @@ public class TeacherController {
     //     return ResponseEntity.ok(teacherService.getByEmailTeacher(email));
     // }
 
-    @PostMapping("/teacher")
+    @PostMapping("/create/teacher")
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @Operation(summary = "Create a new teacher", description = "Create a new teacher for the system")
     @ApiResponses(value = {
@@ -60,7 +60,7 @@ public class TeacherController {
     }
 
 
-    @PutMapping("/teacher/{id}")
+    @PutMapping("/update/teacher/{id}")
     @PreAuthorize("hasAuthority('CLASS_VIEW')")
     @Operation(summary = "Update a teacher", description = "Update an existing teacher by ID")
     @ApiResponses(value = {
@@ -76,7 +76,7 @@ public class TeacherController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("teacher/{id}")
+    @DeleteMapping("/delete/teacher/{id}")
     @PreAuthorize("hasAuthority('USER_DELETE')")
     @Operation(summary = "Delete a teacher", description = "Delete an existing teacher by ID")
     @ApiResponses(value = {
