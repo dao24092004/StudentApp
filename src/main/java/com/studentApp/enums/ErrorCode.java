@@ -15,7 +15,12 @@ public enum ErrorCode {
 	PERMISSION_EXISTS_ASSIGNED(1024, "Permeission EXISTS ASSIGNED"),
 	MAJOR_CODE_ALREADY_EXISTS(1026, "Major already exists"), INVALID_REFRESH_TOKEN(4444, "Invalid refresh token"),
 	REFRESH_TOKEN_EXPIRED(4445, "Refresh token has expired"), INVALID_REQUEST(4446, "Invalid request"),
-	TEACHER_NOT_FOUND(3001, "Teacher not found"),TEACHER_ALLREADY_EXISTS(3002, "Teacher allready exists"),;
+
+	TEACHER_NOT_FOUND(3001, "Teacher not found"),TEACHER_ALLREADY_EXISTS(3002, "Teacher allready exists"),
+	STUDENT_NOT_FOUND(1025, "STUDENT NOT FOUND"),
+	STUDENT_ALREADY_EXISTS(1026, "STUDENT EXISTS ASSIGNED"),
+	MAJOR_NOT_FOUND(1027, "Major not found"),;
+
 
 	private final int code;
 	private final String message;

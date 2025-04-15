@@ -109,4 +109,6 @@ public class AdminPermissionController {
 		permissionService.revokePermissionFromRole(request);
 		return ResponseEntity.ok("Permission revoked from role successfully");
 	}
+
+	
 }

@@ -55,8 +55,12 @@ public class User {
 	private LocalDateTime updatedAt;
 
 
+
 	@OneToOne(mappedBy = "user")
 	@JsonBackReference
 	private Teacher teacher;
 
+	@OneToOne(mappedBy = "user")
+   @JsonBackReference
+    private Student student;
 }
