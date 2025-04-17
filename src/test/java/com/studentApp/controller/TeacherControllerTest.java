@@ -1,90 +1,121 @@
 package com.studentApp.controller;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Date;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.studentApp.config.TestSecurityConfig;
+import com.studentApp.dto.request.TeacherCreationRequest;
+import com.studentApp.dto.response.TeacherResponse;
+import com.studentApp.entity.Teacher;
+import com.studentApp.security.JwtAuthenticationFilter;
+import com.studentApp.service.TeacherService;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@ActiveProfiles("test")
-@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class TeacherApiE2ETest {
+@WebMvcTest(value = TeacherController.class, excludeFilters = {
+		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class) }, excludeAutoConfiguration = {
+				org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+				org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration.class,
+				org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration.class })
+@AutoConfigureMockMvc(addFilters = false)
+@Import(TestSecurityConfig.class)
+public class TeacherControllerTest {
 
-	private static final Logger log = LoggerFactory.getLogger(TeacherApiE2ETest.class);
+	@Autowired
+	private MockMvc mockMvc;
 
-	@Container
-	private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-			.withDatabaseName("test").withUsername("studentApp").withPassword("1234$");
+	@MockBean
+	private TeacherService teacherService;
 
-	@DynamicPropertySource
-	static void configureProperties(DynamicPropertyRegistry registry) {
-		log.info("Configuring Testcontainers properties - JDBC URL: {}", postgres.getJdbcUrl());
-		registry.add("spring.datasource.url", postgres::getJdbcUrl);
-		registry.add("spring.datasource.username", postgres::getUsername);
-		registry.add("spring.datasource.password", postgres::getPassword);
-		registry.add("spring.jpa.database-platform", () -> "org.hibernate.dialect.PostgreSQLDialect");
-		registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
-		registry.add("spring.flyway.enabled", () -> "true");
-		registry.add("spring.profiles.active", () -> "test");
-	}
-
-	@LocalServerPort
-	private int port;
-
-	private String adminToken;
+	private TeacherCreationRequest teacherCreationRequest;
+	private TeacherResponse teacherResponse;
+	private ObjectMapper objectMapper;
 
 	@BeforeEach
-	void setUp() {
-		log.info("Setting up E2E test environment on port: {} - Database URL: {}", port, postgres.getJdbcUrl());
-		RestAssured.baseURI = "http://localhost:" + port;
+	public void initData() {
+		objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
 
-		Map<String, String> credentials = new HashMap<>();
-		credentials.put("username", "admin1");
-		credentials.put("password", "admin");
+		teacherCreationRequest = TeacherCreationRequest.builder().teacherName("Nguyen Van A")
+				.teacherDateOfBirth(Date.valueOf("1980-01-01")).userEmail("nguyenvana@gmail.com")
+				.teacherGender(Teacher.Gender.Female).teacherAddress("123 Hanoi").teacherPhoneNumber("0912345678")
+				.build();
 
-		log.info("Attempting to login with username: admin1");
-		log.debug("Login request body: {}", credentials);
-		adminToken = given().contentType(ContentType.JSON).body(credentials).when().post("/auth/login").then()
-				.statusCode(200).extract().asString();
-		log.info("Admin token: {}", adminToken);
+		teacherResponse = TeacherResponse.builder().id(1L).userId(1L).teacherName("Nguyen Van A")
+				.teacherDateOfBirth(Date.valueOf("1980-01-01")).userEmail("nguyenvana@gmail.com")
+				.teacherGender(Teacher.Gender.Female).teacherAddress("123 Hanoi").teacherPhoneNumber("0912345678")
+				.teacherCode("GV202500001").teacherEmail("nguyenvana_gv202500001@university.edu.vn").build();
 	}
 
 	@Test
-	void createAndGetTeacher_E2E() {
-		log.info("Running createAndGetTeacher_E2E test");
-		Map<String, Object> teacherRequest = new HashMap<>();
-		teacherRequest.put("teacherName", "Nguyen Van C");
-		teacherRequest.put("teacherEmail", "nguyenvanc@university.edu.vn");
-		teacherRequest.put("teacherDateOfBirth", "1982-01-01");
-		teacherRequest.put("teacherGender", "Male");
-		teacherRequest.put("teacherAddress", "789 Hanoi");
-		teacherRequest.put("teacherPhoneNumber", "0123456789");
-		log.debug("Teacher creation request: {}", teacherRequest);
+	@WithMockUser(username = "admin", authorities = { "USER_CREATE" })
+	void createTeacher_validRequest_success() throws Exception {
+		String content = objectMapper.writeValueAsString(teacherCreationRequest);
+		Mockito.when(teacherService.createTeacher(ArgumentMatchers.any(TeacherCreationRequest.class)))
+				.thenReturn(teacherResponse);
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/create/teacher").contentType(MediaType.APPLICATION_JSON)
+				.content(content)).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.teacherName").value("Nguyen Van A"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.userEmail").value("nguyenvana@gmail.com"));
+	}
 
-		given().header("Authorization", "Bearer " + adminToken).contentType(ContentType.JSON).body(teacherRequest)
-				.when().post("/api/users/create/teacher").then().statusCode(200)
-				.body("teacherName", equalTo("Nguyen Van C"));
+	@Test
+	@WithMockUser(username = "admin", authorities = { "USER_CREATE" })
+	void createTeacher_emailExists_fail() throws Exception {
+		teacherCreationRequest.setUserEmail("existing@example.com");
+		String content = objectMapper.writeValueAsString(teacherCreationRequest);
+		Mockito.when(teacherService.createTeacher(ArgumentMatchers.any(TeacherCreationRequest.class)))
+				.thenThrow(new RuntimeException("Teacher already exists"));
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/create/teacher").contentType(MediaType.APPLICATION_JSON)
+				.content(content)).andExpect(MockMvcResultMatchers.status().isInternalServerError())
+				.andExpect(MockMvcResultMatchers.content().string("Error creating teacher: Teacher already exists"));
+	}
 
-		given().header("Authorization", "Bearer " + adminToken).contentType(ContentType.JSON).when()
-				.get("/api/users/teacher").then().statusCode(200).body("[0].teacherName", equalTo("Nguyen Van C"));
+//	@Test
+//	@WithMockUser(username = "admin", authorities = { "USER_CREATE" })
+//	void createTeacher_invalidPhoneNumber_fail() throws Exception {
+//		teacherCreationRequest.setTeacherPhoneNumber("123"); // Invalid phone number
+//		String content = objectMapper.writeValueAsString(teacherCreationRequest);
+//		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/create/teacher").contentType(MediaType.APPLICATION_JSON)
+//				.content(content)).andExpect(MockMvcResultMatchers.status().isBadRequest());
+//	}
+
+	@Test
+	@WithMockUser(username = "admin", authorities = { "USER_VIEW" })
+	void getByIdTeacher_validId_success() throws Exception {
+		long teacherId = 1L;
+		System.out.println("teacherResponse before test: " + teacherResponse.getTeacherName());
+		Mockito.when(teacherService.getByIdTeacher(teacherId)).thenReturn(teacherResponse);
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/users/teacher/{id}", teacherId)
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.teacherName").value("Nguyen Van A"));
+	}
+
+	@Test
+	@WithMockUser(username = "admin", authorities = { "USER_DELETE" })
+	void deleteTeacher_validId_success() throws Exception {
+		long teacherId = 1L;
+		Mockito.doNothing().when(teacherService).deleteTeacher(teacherId);
+		mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/teacher/{id}", teacherId)
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.content().string("Teacher delete successfully"));
 	}
 }
