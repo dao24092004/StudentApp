@@ -23,6 +23,8 @@ public class MajorService {
 	@Autowired
 	private DepartmentRepository departmentRepository;
 
+	
+
 	public MajorResponse createMajor(MajorCreationRequest request) {
 		if (majorRepository.findByMajorCode(request.getMajorCode()) != null) {
 			throw new AppException(ErrorCode.MAJOR_CODE_ALREADY_EXISTS);
