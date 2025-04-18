@@ -3,7 +3,7 @@ package com.studentApp.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +39,6 @@ public class Role {
 
 	@ManyToMany
 	@JoinTable(name = "tbl_role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
-	@JsonManagedReference
+	@JsonIgnore
 	private List<Permission> permissions;
 }

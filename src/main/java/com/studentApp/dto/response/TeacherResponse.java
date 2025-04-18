@@ -2,20 +2,35 @@ package com.studentApp.dto.response;
 
 import java.sql.Date;
 
-import com.studentApp.entity.Teacher.Gender;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.studentApp.entity.Teacher;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@JsonDeserialize(builder = TeacherResponse.TeacherResponseBuilder.class)
 public class TeacherResponse {
-    private long id;
-    private Long userId;
-    private String userEmail;
-    private String teacherCode;
-    private String teacherName;
-    private Date teacherDateOfBirth;
-    private Gender teacherGender;
-    private String teacherAddress;
-    private String teacherPhoneNumber;
-    private String teacherEmail;
+	private Long id;
+	private Long userId;
+	private String userEmail;
+	private String teacherName;
+	private Date teacherDateOfBirth;
+	private Teacher.Gender teacherGender;
+	private String teacherAddress;
+	private String teacherPhoneNumber;
+	private String teacherCode;
+	private String teacherEmail;
+
+	@JsonPOJOBuilder(withPrefix = "")
+	public static class TeacherResponseBuilder {
+	}
 }

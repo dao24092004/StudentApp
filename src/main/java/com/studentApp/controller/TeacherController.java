@@ -2,7 +2,10 @@ package com.studentApp.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +31,8 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/users")
 public class TeacherController {
 
+	private static final Logger log = LoggerFactory.getLogger(TeacherController.class);
+
 	@Autowired
 	private TeacherService teacherService;
 
@@ -43,21 +48,24 @@ public class TeacherController {
 		return ResponseEntity.ok(teacherService.getByIdTeacher(id));
 	}
 
-	// @GetMapping("/teacher/{email}")
-	// public ResponseEntity<TeacherResponse> getByEmailTeacher(@PathVariable String
-	// email) {
-	// return ResponseEntity.ok(teacherService.getByEmailTeacher(email));
-	// }
-
 	@PostMapping("/create/teacher")
 	@PreAuthorize("hasAuthority('USER_CREATE')")
 	@Operation(summary = "Create a new teacher", description = "Create a new teacher for the system")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Teacher updated successfully"),
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Teacher created successfully"),
 			@ApiResponse(responseCode = "404", description = "Teacher not found"),
 			@ApiResponse(responseCode = "400", description = "Invalid input data"),
 			@ApiResponse(responseCode = "403", description = "Access denied") })
 	public ResponseEntity<?> createTeacher(@Valid @RequestBody TeacherCreationRequest request) {
-		return ResponseEntity.ok(teacherService.createTeacher(request));
+		try {
+			log.info("Creating teacher with email: {}", request.getUserEmail());
+			Object response = teacherService.createTeacher(request);
+			log.info("Teacher created successfully: {}", request.getTeacherName());
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			log.error("Error creating teacher", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error creating teacher: " + e.getMessage());
+		}
 	}
 
 	@PutMapping("/update/teacher/{id}")
@@ -84,5 +92,4 @@ public class TeacherController {
 		teacherService.deleteTeacher(id);
 		return ResponseEntity.ok("Teacher delete successfully");
 	}
-
 }
