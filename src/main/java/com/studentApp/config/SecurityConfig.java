@@ -39,10 +39,11 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// Public endpoints
 						.requestMatchers("/auth/**").permitAll()
+
+						.requestMatchers("/actuator/health").permitAll()
 						// User management
-						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW")
-						.requestMatchers("/api/users/create/**").hasAuthority("USER_CREATE")
-						.requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
+						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW").requestMatchers("/api/users/create")
+						.hasAuthority("USER_CREATE").requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
 						.requestMatchers("/api/users/delete/**").hasAuthority("USER_DELETE")
 						// Class management
 						.requestMatchers("/api/classes/**").hasAuthority("CLASS_VIEW")
@@ -81,6 +82,13 @@ public class SecurityConfig {
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_DELETE")
 						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
 						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
+
+						// Teacher management
+						.requestMatchers("/api/teacher/**").hasAuthority("TEACHER_VIEW")
+						.requestMatchers("/api/teacher/create").hasAuthority("TEACHER_CREATE")
+						.requestMatchers("/api/teacher/update/**").hasAuthority("TEACHER_UPDATE")
+						.requestMatchers("/api/teacher/delete/**").hasAuthority("TEACHER_DELETE")
+
 						// Yêu cầu xác thực cho các endpoint khác
 						.anyRequest().authenticated());
 
