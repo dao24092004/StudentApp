@@ -88,15 +88,6 @@ public class TeacherControllerTest {
 				.andExpect(MockMvcResultMatchers.content().string("Error creating teacher: Teacher already exists"));
 	}
 
-//	@Test
-//	@WithMockUser(username = "admin", authorities = { "USER_CREATE" })
-//	void createTeacher_invalidPhoneNumber_fail() throws Exception {
-//		teacherCreationRequest.setTeacherPhoneNumber("123"); // Invalid phone number
-//		String content = objectMapper.writeValueAsString(teacherCreationRequest);
-//		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/create/teacher").contentType(MediaType.APPLICATION_JSON)
-//				.content(content)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-//	}
-
 	@Test
 	@WithMockUser(username = "admin", authorities = { "USER_VIEW" })
 	void getByIdTeacher_validId_success() throws Exception {
