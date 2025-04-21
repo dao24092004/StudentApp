@@ -164,8 +164,29 @@
 		</dependency>
 	</dependencies>
 
-	<build>
+	<reporting>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>3.5.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.12.1</version>
+			</plugin>
+		</plugins>
+	</reporting>
+	<build>
+
+
+		<plugins>
+		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.3</version>
+            </plugin>
 
 			<!-- Plugin JaCoCo để đo độ phủ test -->
 			<plugin>

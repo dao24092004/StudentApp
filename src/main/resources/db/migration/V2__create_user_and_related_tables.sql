@@ -13,56 +13,74 @@ CREATE TABLE tbl_user (
     CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES tbl_role(id)
 );
 
--- Tạo bảng TBL_MAJOR
+
+-- Bảng tbl_major: Lưu thông tin ngành học (CNTT, TMĐT, ANM, v.v.)
 CREATE TABLE tbl_major (
-    id SERIAL PRIMARY KEY,
-    major_code VARCHAR(20) NOT NULL,
-    major_name VARCHAR(100) NOT NULL,
-    dept_id INTEGER NOT NULL,
-    curriculum_id INTEGER,
-    description VARCHAR(250),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_major_code UNIQUE (major_code),
-    CONSTRAINT uk_major_curriculum UNIQUE (curriculum_id),
-    CONSTRAINT fk_major_dept FOREIGN KEY (dept_id) REFERENCES tbl_department(id),
-    CONSTRAINT fk_major_curriculum FOREIGN KEY (curriculum_id) REFERENCES tbl_curriculum(id)
+    id SERIAL PRIMARY KEY, -- Khóa chính, tự động tăng
+    major_code VARCHAR(20) NOT NULL, -- Mã ngành, duy nhất
+    major_name VARCHAR(100) NOT NULL, -- Tên ngành
+    dept_id INTEGER NOT NULL, -- Khoa phụ trách ngành
+    curriculum_id INTEGER, -- Chương trình khung của ngành
+    description VARCHAR(250), -- Mô tả ngành
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian tạo
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian cập nhật
+    CONSTRAINT uk_major_code UNIQUE (major_code), -- Ràng buộc duy nhất cho major_code
+    CONSTRAINT fk_major_dept FOREIGN KEY (dept_id) REFERENCES tbl_department(id), -- Liên kết với tbl_department
+    CONSTRAINT fk_major_curriculum FOREIGN KEY (curriculum_id) REFERENCES tbl_curriculum(id) -- Liên kết với tbl_curriculum
 );
 
--- Tạo bảng TBL_STUDENT
+-- Bảng tbl_class_group: Lưu thông tin nhóm lớp theo ngành (CNPM, TMĐT, ANM)
+CREATE TABLE tbl_class_group (
+    id SERIAL PRIMARY KEY,
+    group_code VARCHAR(20) NOT NULL, -- Mã nhóm lớp (ví dụ: CNPM1, TMĐT1)
+    group_name VARCHAR(100) NOT NULL, -- Tên nhóm lớp
+    major_id INTEGER NOT NULL, -- ID của ngành học (liên kết với tbl_major)
+    shift VARCHAR(10) CHECK (shift IN ('Morning', 'Afternoon')), -- Ca học cố định: Morning (sáng), Afternoon (chiều)
+    semester_id INTEGER NOT NULL, -- ID của kỳ học (liên kết với tbl_semester)
+    CONSTRAINT uk_class_group_code UNIQUE (group_code), -- Ràng buộc: mã nhóm lớp là duy nhất
+    CONSTRAINT fk_class_group_major FOREIGN KEY (major_id) REFERENCES tbl_major(id), -- Khóa ngoại tới tbl_major
+    CONSTRAINT fk_class_group_semester FOREIGN KEY (semester_id) REFERENCES tbl_semester(id) -- Khóa ngoại tới tbl_semester
+);
+-- Bảng tbl_student: Lưu thông tin sinh viên
 CREATE TABLE tbl_student (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    student_code VARCHAR(20) NOT NULL,
-    student_name VARCHAR(100) NOT NULL,
-    date_of_birth DATE,
-    gender VARCHAR(10),
-    address VARCHAR(100),
-    phone_number VARCHAR(15),
-    major_id INTEGER NOT NULL,
-    CONSTRAINT uk_student_code UNIQUE (student_code),
-    CONSTRAINT uk_student_phone UNIQUE (phone_number),
-    CONSTRAINT uk_student_user UNIQUE (user_id),
-    CONSTRAINT check_student_gender CHECK (gender IN ('Male', 'Female')),
-    CONSTRAINT fk_student_major FOREIGN KEY (major_id) REFERENCES tbl_major(id),
-    CONSTRAINT fk_student_user FOREIGN KEY (user_id) REFERENCES tbl_user(id) ON DELETE SET NULL
+    user_id INTEGER, -- ID của người dùng (liên kết với tbl_user)
+    student_code VARCHAR(20) NOT NULL, -- Mã sinh viên
+    student_name VARCHAR(100) NOT NULL, -- Tên sinh viên
+    date_of_birth DATE, -- Ngày sinh
+    gender VARCHAR(10), -- Giới tính: 'Male', 'Female'
+    address VARCHAR(100), -- Địa chỉ
+    phone_number VARCHAR(15), -- Số điện thoại
+    major_id INTEGER NOT NULL, -- ID của ngành học (liên kết với tbl_major)
+    class_group_id INTEGER NOT NULL, -- ID của nhóm lớp (liên kết với tbl_class_group)
+    CONSTRAINT uk_student_code UNIQUE (student_code), -- Ràng buộc: mã sinh viên là duy nhất
+    CONSTRAINT uk_student_phone UNIQUE (phone_number), -- Ràng buộc: số điện thoại là duy nhất
+    CONSTRAINT uk_student_user UNIQUE (user_id), -- Ràng buộc: mỗi sinh viên chỉ liên kết với 1 user
+    CONSTRAINT check_student_gender CHECK (gender IN ('Male', 'Female')), -- Ràng buộc: giới tính chỉ được là 'Male' hoặc 'Female'
+    CONSTRAINT fk_student_major FOREIGN KEY (major_id) REFERENCES tbl_major(id), -- Khóa ngoại tới tbl_major
+    CONSTRAINT fk_student_user FOREIGN KEY (user_id) REFERENCES tbl_user(id) ON DELETE SET NULL, -- Khóa ngoại tới tbl_user
+    CONSTRAINT fk_student_class_group FOREIGN KEY (class_group_id) REFERENCES tbl_class_group(id), -- Khóa ngoại tới tbl_class_group
+    CONSTRAINT check_student_class_group CHECK (class_group_id IS NOT NULL) -- Ràng buộc: mỗi sinh viên phải thuộc một nhóm lớp
 );
 
--- Tạo bảng TBL_TEACHER
+-- Bảng tbl_teacher: Lưu thông tin giáo viên
+-- Bảng tbl_teacher: Lưu thông tin giáo viên
 CREATE TABLE tbl_teacher (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    teacher_code VARCHAR(20) NOT NULL,
-    teacher_name VARCHAR(100) NOT NULL,
-    date_of_birth DATE,
-    gender VARCHAR(10),
-    address VARCHAR(100),
-    phone_number VARCHAR(15),
-    email VARCHAR(100) NOT NULL,
-    CONSTRAINT uk_teacher_code UNIQUE (teacher_code),
-    CONSTRAINT uk_teacher_email UNIQUE (email),
-    CONSTRAINT uk_teacher_phone UNIQUE (phone_number),
-    CONSTRAINT uk_teacher_user UNIQUE (user_id),
-    CONSTRAINT check_teacher_gender CHECK (gender IN ('Male', 'Female')),
-    CONSTRAINT fk_teacher_user FOREIGN KEY (user_id) REFERENCES tbl_user(id) ON DELETE SET NULL
+    user_id INTEGER, -- ID của người dùng (liên kết với tbl_user)
+    teacher_code VARCHAR(20) NOT NULL, -- Mã giáo viên
+    teacher_name VARCHAR(100) NOT NULL, -- Tên giáo viên
+    date_of_birth DATE, -- Ngày sinh
+    gender VARCHAR(10), -- Giới tính: 'Male', 'Female'
+    address VARCHAR(100), -- Địa chỉ
+    phone_number VARCHAR(15), -- Số điện thoại
+    email VARCHAR(100) NOT NULL, -- Email
+    dept_id INTEGER NOT NULL, -- ID của khoa (liên kết với tbl_department, bắt buộc)
+    CONSTRAINT uk_teacher_code UNIQUE (teacher_code), -- Ràng buộc: mã giáo viên là duy nhất
+    CONSTRAINT uk_teacher_email UNIQUE (email), -- Ràng buộc: email là duy nhất
+    CONSTRAINT uk_teacher_phone UNIQUE (phone_number), -- Ràng buộc: số điện thoại là duy nhất
+    CONSTRAINT uk_teacher_user UNIQUE (user_id), -- Ràng buộc: mỗi giáo viên chỉ liên kết với 1 user
+    CONSTRAINT check_teacher_gender CHECK (gender IN ('Male', 'Female')), -- Ràng buộc: giới tính chỉ được là 'Male' hoặc 'Female'
+    CONSTRAINT fk_teacher_user FOREIGN KEY (user_id) REFERENCES tbl_user(id) ON DELETE SET NULL, -- Khóa ngoại tới tbl_user
+    CONSTRAINT fk_teacher_dept FOREIGN KEY (dept_id) REFERENCES tbl_department(id) -- Khóa ngoại tới tbl_department
 );

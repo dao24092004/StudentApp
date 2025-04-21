@@ -6,28 +6,26 @@ CREATE TABLE tbl_semester (
     CONSTRAINT check_semester_dates CHECK (start_date < end_date)
 );
 
--- Tạo bảng TBL_CURRICULUM
+-- Bảng tbl_curriculum: Lưu thông tin chương trình khung (CTK của từng ngành)
 CREATE TABLE tbl_curriculum (
-    id SERIAL PRIMARY KEY,
-    curriculum_code VARCHAR(20) NOT NULL,
-    curriculum_name VARCHAR(100) NOT NULL,
-    description VARCHAR(250),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_curriculum_code UNIQUE (curriculum_code)
+    id SERIAL PRIMARY KEY, -- Khóa chính, tự động tăng
+    curriculum_code VARCHAR(20) NOT NULL, -- Mã chương trình khung, duy nhất
+    curriculum_name VARCHAR(100) NOT NULL, -- Tên chương trình khung
+    description VARCHAR(250), -- Mô tả chương trình khung
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian tạo
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian cập nhật
+    CONSTRAINT uk_curriculum_code UNIQUE (curriculum_code) -- Ràng buộc duy nhất cho curriculum_code
 );
-
--- Tạo bảng TBL_DEPARTMENT
+-- Bảng tbl_department: Lưu thông tin khoa (CNTT, Chính trị, v.v.)
 CREATE TABLE tbl_department (
-    id SERIAL PRIMARY KEY,
-    dept_code VARCHAR(20) NOT NULL,
-    dept_name VARCHAR(100) NOT NULL,
-    description VARCHAR(250),
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_dept_code UNIQUE (dept_code)
+    id SERIAL PRIMARY KEY, -- Khóa chính, tự động tăng
+    dept_code VARCHAR(20) NOT NULL, -- Mã khoa, duy nhất
+    dept_name VARCHAR(100) NOT NULL, -- Tên khoa
+    description VARCHAR(250), -- Mô tả khoa
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian tạo
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian cập nhật
+    CONSTRAINT uk_dept_code UNIQUE (dept_code) -- Ràng buộc duy nhất cho dept_code
 );
-
 -- Tạo bảng TBL_ROLE
 CREATE TABLE tbl_role (
     id SERIAL PRIMARY KEY,
