@@ -12,18 +12,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-@Data
 @Entity
 @Table(name = "tbl_class")
+@Data
 public class Class {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "class_code", nullable = false)
+	@Column(name = "class_code", nullable = false, unique = true, length = 20)
 	private String classCode;
 
-	@Column(name = "class_name", nullable = false)
+	@Column(name = "class_name", nullable = false, length = 100)
 	private String className;
 
 	@ManyToOne
@@ -48,6 +48,5 @@ public class Class {
 
 	private String shift;
 
-	@Column(nullable = false)
 	private Integer priority = 10;
 }

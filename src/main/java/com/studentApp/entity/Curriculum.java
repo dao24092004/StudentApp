@@ -1,15 +1,14 @@
 package com.studentApp.entity;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -28,8 +27,8 @@ public class Curriculum {
 	@Column(name = "curriculum_name", nullable = false, length = 100)
 	private String curriculumName;
 
-	@ManyToMany(mappedBy = "curriculum")
-	private Set<Major> majors = new HashSet<>();
+	@OneToMany(mappedBy = "curriculum")
+	private List<Major> majors;
 
 	@Column(name = "description", length = 250)
 	private String description;

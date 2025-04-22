@@ -10,6 +10,6 @@ import com.studentApp.entity.TeacherSubjectRegistration;
 
 public interface TeacherSubjectRegistrationRepository extends JpaRepository<TeacherSubjectRegistration, Long> {
 
-	@Query("SELECT tsr FROM TeacherSubjectRegistration tsr WHERE tsr.semesterId = :semesterId")
+	@Query("SELECT tsr FROM TeacherSubjectRegistration tsr WHERE tsr.semester.id = :semesterId")
 	List<TeacherSubjectRegistration> findBySemesterId(@Param("semesterId") Long semesterId);
 }

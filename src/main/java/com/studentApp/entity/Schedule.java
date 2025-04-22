@@ -7,46 +7,37 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-// Định nghĩa entity cho bảng tbl_schedule
 @Entity
 @Table(name = "tbl_schedule")
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-
+@Data
 public class Schedule {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "class_id")
-	private Long classId;
+	@ManyToOne
+	@JoinColumn(name = "class_id")
+	private Class classEntity;
 
-	@Column(name = "subject_id")
-	private Long subjectId;
+	@ManyToOne
+	@JoinColumn(name = "subject_id")
+	private Subject subject;
 
-	@Column(name = "day_of_week")
+	@Column(name = "day_of_week", nullable = false)
 	private String dayOfWeek;
 
-	@Column(name = "slot")
 	private Integer slot;
 
-	@Column(name = "period")
 	private Integer period;
 
-	@Column(name = "start_time")
+	@Column(name = "start_time", nullable = false)
 	private LocalDateTime startTime;
 
-	@Column(name = "end_time")
+	@Column(name = "end_time", nullable = false)
 	private LocalDateTime endTime;
-
 }

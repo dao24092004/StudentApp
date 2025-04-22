@@ -23,8 +23,6 @@ public class MajorService {
 	@Autowired
 	private DepartmentRepository departmentRepository;
 
-	
-
 	public MajorResponse createMajor(MajorCreationRequest request) {
 		if (majorRepository.findByMajorCode(request.getMajorCode()) != null) {
 			throw new AppException(ErrorCode.MAJOR_CODE_ALREADY_EXISTS);
@@ -36,7 +34,7 @@ public class MajorService {
 		Major major = new Major();
 		major.setMajorCode(request.getMajorCode());
 		major.setMajorName(request.getMajorName());
-		major.setDepartment(department);
+		major.setDeptId(department.getId());
 		major.setDescription(request.getDescription());
 		major.setCreatedAt(LocalDateTime.now());
 		major.setUpdatedAt(LocalDateTime.now());
@@ -50,7 +48,13 @@ public class MajorService {
 		response.setId(major.getId());
 		response.setMajorCode(major.getMajorCode());
 		response.setMajorName(major.getMajorName());
-		response.setDeptId(major.getDepartment().getId());
+		response.setDeptId(major.getDeptId());
+		Department department = departmentRepository.findById(major.getDeptId())
+				.orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+		response.setDeptName(department.getDeptName());
+		if (major.getCurriculum() != null) {
+			response.setCurriculumName(major.getCurriculum().getCurriculumName());
+		}
 		response.setDescription(major.getDescription());
 		response.setCreatedAt(major.getCreatedAt());
 		response.setUpdatedAt(major.getUpdatedAt());

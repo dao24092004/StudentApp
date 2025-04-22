@@ -115,7 +115,7 @@ public class AuthController {
 		user.setPassword(jwtService.encodePassword(registerRequest.getPassword()));
 
 		// Gán vai trò mặc định (ví dụ: "STUDENT")
-		Role userRole = roleRepository.findByRoleName("TEACHER")
+		Role userRole = roleRepository.findByRoleName("ADMIN")
 				.orElseThrow(() -> new RuntimeException("Role not found"));
 		if (userRole == null) {
 			return ResponseEntity.status(500).body("Default role 'USER' not found. Please contact admin.");

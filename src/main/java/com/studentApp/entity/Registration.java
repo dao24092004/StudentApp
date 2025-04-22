@@ -2,6 +2,7 @@ package com.studentApp.entity;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +32,7 @@ public class Registration {
 	@JoinColumn(name = "semester_id", nullable = false)
 	private Semester semester;
 
+	@Column(name = "registration_date")
 	private LocalDate registrationDate;
 
 	private String status;

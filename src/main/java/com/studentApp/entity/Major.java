@@ -16,7 +16,6 @@ import lombok.Data;
 @Table(name = "tbl_major")
 @Data
 public class Major {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -27,20 +26,19 @@ public class Major {
 	@Column(name = "major_name", nullable = false, length = 100)
 	private String majorName;
 
-	@ManyToOne
-	@JoinColumn(name = "dept_id", nullable = false) // Khóa ngoại tới tbl_department
-	private Department department;
+	@Column(name = "dept_id", nullable = false)
+	private Long deptId;
 
 	@ManyToOne
-	@JoinColumn(name = "curriculum_id", unique = true) // Khóa ngoại tới tbl_curriculum, unique
+	@JoinColumn(name = "curriculum_id")
 	private Curriculum curriculum;
 
-	@Column(name = "description", length = 250)
+	@Column(length = 250)
 	private String description;
-	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-	private LocalDateTime updatedAt;
+	@Column(name = "created_at")
+	private LocalDateTime createdAt = LocalDateTime.now();
 
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt = LocalDateTime.now();
 }

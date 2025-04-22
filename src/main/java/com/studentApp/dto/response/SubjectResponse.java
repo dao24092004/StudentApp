@@ -9,6 +9,6 @@ public class SubjectResponse {
 	private String subjectName;
 	private Integer credits;
 	private String description;
-	private Long semesterId;
-	private Long deptId;
+	private String semesterName; // Thay vì semesterId
+	private String deptName; // Thay vì deptId
 }
