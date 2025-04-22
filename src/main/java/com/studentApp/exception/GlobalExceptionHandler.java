@@ -10,45 +10,31 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.studentApp.dto.response.ApiResponse;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
 		Map<String, String> errors = new HashMap<>();
 		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
 			errors.put(error.getField(), error.getDefaultMessage());
 		}
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+		ApiResponse<Object> response = new ApiResponse<>("error", errors);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
 	@ExceptionHandler(AppException.class)
-	public ResponseEntity<ErrorResponse> handleAppException(AppException ex) {
-		ErrorResponse errorResponse = new ErrorResponse(ex.getErrorCode().getCode(), ex.getErrorCode().getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	public ResponseEntity<ApiResponse<Object>> handleAppException(AppException ex) {
+		ApiResponse<Object> response = new ApiResponse<>("error",
+				ex.getErrorCode().getCode() + ": " + ex.getErrorCode().getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
-		ErrorResponse errorResponse = new ErrorResponse(500, "An unexpected error occurred: " + ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-}
-
-class ErrorResponse {
-	private int code;
-	private String message;
-
-	public ErrorResponse(int code, String message) {
-		this.code = code;
-		this.message = message;
-	}
-
-	public int getCode() {
-		return code;
-	}
-
-	public String getMessage() {
-		return message;
+	public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception ex) {
+		ApiResponse<Object> response = new ApiResponse<>("error", "An unexpected error occurred: " + ex.getMessage());
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	}
 }

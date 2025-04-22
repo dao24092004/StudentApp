@@ -47,7 +47,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/users/delete/**").hasAuthority("USER_DELETE")
 						// Class management
 						.requestMatchers("/api/classes/**").hasAuthority("CLASS_VIEW")
-						.requestMatchers("/api/classes/create").hasAuthority("CLASS_CREATE")
+						.requestMatchers("/api/classes/create/**").hasAuthority("CLASS_CREATE")
 						.requestMatchers("/api/classes/update/**").hasAuthority("CLASS_UPDATE")
 						.requestMatchers("/api/classes/delete/**").hasAuthority("CLASS_DELETE")
 						// Subject management
@@ -83,11 +83,8 @@ public class SecurityConfig {
 						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
 						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
 
-						// Teacher management
-						.requestMatchers("/api/teacher/**").hasAuthority("TEACHER_VIEW")
-						.requestMatchers("/api/teacher/create").hasAuthority("TEACHER_CREATE")
-						.requestMatchers("/api/teacher/update/**").hasAuthority("TEACHER_UPDATE")
-						.requestMatchers("/api/teacher/delete/**").hasAuthority("TEACHER_DELETE")
+						// student registration
+						.requestMatchers("/api/classes/registration/**").hasAuthority("STUDENT_REGISTER")
 
 						// Yêu cầu xác thực cho các endpoint khác
 						.anyRequest().authenticated());
