@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ import lombok.Setter;
 @Builder
 public class Teacher {
 	public Teacher(Long teacherId) {
-		// TODO Auto-generated constructor stub
+		this.id = teacherId;
 	}
 
 	@Id
@@ -57,7 +58,6 @@ public class Teacher {
 	}
 
 	@Enumerated(EnumType.STRING)
-
 	@Column(name = "gender", length = 10)
 	private Gender teacherGender;
 
@@ -69,4 +69,8 @@ public class Teacher {
 
 	@Column(name = "email", unique = true, nullable = false, length = 100)
 	private String teacherEmail;
+
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "dept_id", nullable = false)
+	private Department department;
 }
