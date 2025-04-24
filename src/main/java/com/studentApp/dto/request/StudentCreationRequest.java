@@ -26,4 +26,5 @@ public class StudentCreationRequest {
 	private String phone_number;
 	private Long major_id;
 	private String emailUser;
+	private Long class_group_id;
 }

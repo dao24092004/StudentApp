@@ -17,6 +17,13 @@ public class StudentMapper {
         response.setPhoneNumber(student.getPhoneNumber());
         response.setStudentCode(student.getStudentCode());
         response.setStudentName(student.getStudentName());
+
+        // Thêm email của User vào StudentResponse
+        if (student.getUser() != null) {
+            response.setUserEmail(student.getUser().getEmail());
+            response.setStudentEmail(student.getUser().getEmail()); // Nếu cần, bạn có thể thay đổi logic này
+        }
+
         return response;
     }
 }

@@ -63,4 +63,8 @@ public class Student {
 	@ManyToOne
 	@JoinColumn(name = "major_id", nullable = false)
 	private Major major;
+
+	@ManyToOne
+    @JoinColumn(name = "class_group_id")
+    private ClassGroup classGroup;
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.studentApp.repository.ClassGroupRepository;
 import com.studentApp.repository.MajorRepository;
 import com.studentApp.repository.RoleRepository;
 import com.studentApp.repository.StudentRepository;
@@ -17,6 +18,7 @@ import jakarta.persistence.PersistenceContext;
 import com.studentApp.dto.request.StudentCreationRequest;
 import com.studentApp.dto.request.StudentUpdateRequest;
 import com.studentApp.dto.response.StudentResponse;
+import com.studentApp.entity.ClassGroup;
 import com.studentApp.entity.Major;
 import com.studentApp.entity.Student;
 import com.studentApp.entity.User;
@@ -44,6 +46,9 @@ public class StudentService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private ClassGroupRepository classGroupRepository;
 
 
     StudentService(JwtService jwtService) {
@@ -87,6 +92,9 @@ public class StudentService {
             Major major = majorRepository.findById(request.getMajor_id())
                     .orElseThrow(() -> new AppException(ErrorCode.MAJOR_NOT_FOUND));
     
+            ClassGroup classGroup = classGroupRepository.findById(request.getClass_group_id())
+                    .orElseThrow(() -> new AppException(ErrorCode.CLASS_GROUP_NOT_FOUND));
+    
             Student studentAdd = new Student();
             studentAdd.setAddress(request.getAddress());
             studentAdd.setDateOfBirth(request.getDate_of_birth());
@@ -95,9 +103,16 @@ public class StudentService {
             studentAdd.setStudentCode(request.getStudent_code());
             studentAdd.setStudentName(request.getStudent_name());
             studentAdd.setMajor(major);
+            studentAdd.setClassGroup(classGroup);
     
             studentAdd = studentRepository.save(studentAdd);
-            return StudentMapper.toStudentResponse(studentAdd);
+    
+            // Tạo StudentResponse
+            StudentResponse response = StudentMapper.toStudentResponse(studentAdd);
+            response.setUserEmail(user.getEmail());  // Set email của User vào StudentResponse
+            response.setStudentEmail(user.getEmail());  // Set email của User vào StudentResponse nếu cần
+    
+            return response;
         } else {
             // Nếu user chưa tồn tại, tạo mới user với email từ request
             User newUser = new User();
@@ -116,6 +131,9 @@ public class StudentService {
             Major major = majorRepository.findById(request.getMajor_id())
                     .orElseThrow(() -> new AppException(ErrorCode.MAJOR_NOT_FOUND));
     
+            ClassGroup classGroup = classGroupRepository.findById(request.getClass_group_id())
+                    .orElseThrow(() -> new AppException(ErrorCode.CLASS_GROUP_NOT_FOUND));
+    
             Student studentAdd = new Student();
             studentAdd.setAddress(request.getAddress());
             studentAdd.setDateOfBirth(request.getDate_of_birth());
@@ -124,10 +142,19 @@ public class StudentService {
             studentAdd.setStudentCode(request.getStudent_code());
             studentAdd.setStudentName(request.getStudent_name());
             studentAdd.setMajor(major);
+            studentAdd.setClassGroup(classGroup);
     
             studentAdd = studentRepository.save(studentAdd);
-            return StudentMapper.toStudentResponse(studentAdd);
+    
+            // Tạo StudentResponse
+            StudentResponse response = StudentMapper.toStudentResponse(studentAdd);
+            response.setUserEmail(newUser.getEmail());  // Set email của User vào StudentResponse
+            response.setStudentEmail(newUser.getEmail());  // Set email của User vào StudentResponse nếu cần
+    
+            return response;
         }
+    
+    
     }
     
     
