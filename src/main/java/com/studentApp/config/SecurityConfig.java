@@ -1,6 +1,7 @@
 package com.studentApp.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.studentApp.security.JwtAuthenticationFilter;
 
@@ -22,12 +26,14 @@ import com.studentApp.security.JwtAuthenticationFilter;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-	@Autowired
-	private JwtAuthenticationFilter jwtAuthenticationFilter;
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter();
+	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.exceptionHandling(
 						exception -> exception.accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -35,64 +41,64 @@ public class SecurityConfig {
 							response.setContentType("application/json");
 							response.getWriter().write(
 									"{\"code\": 403, \"message\": \"Access Denied: You do not have the required permissions to access this resource.\"}");
+						}).authenticationEntryPoint((request, response, authException) -> {
+							response.setStatus(401);
+							response.setContentType("application/json");
+							response.getWriter()
+									.write("{\"code\": 401, \"message\": \"Unauthorized: Invalid or missing token.\"}");
 						}))
-				.authorizeHttpRequests(auth -> auth
-						// Public endpoints
-						.requestMatchers("/auth/**").permitAll()
-
-						.requestMatchers("/actuator/health").permitAll()
-						// User management
-						.requestMatchers("/api/users/**").hasAuthority("USER_VIEW").requestMatchers("/api/users/create")
-						.hasAuthority("USER_CREATE").requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/actuator/health").permitAll().requestMatchers("/api/users/**")
+						.hasAuthority("USER_VIEW").requestMatchers("/api/users/create").hasAuthority("USER_CREATE")
+						.requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
 						.requestMatchers("/api/users/delete/**").hasAuthority("USER_DELETE")
-						// Class management
 						.requestMatchers("/api/classes/**").hasAuthority("CLASS_VIEW")
 						.requestMatchers("/api/classes/create/**").hasAuthority("CLASS_CREATE")
 						.requestMatchers("/api/classes/update/**").hasAuthority("CLASS_UPDATE")
 						.requestMatchers("/api/classes/delete/**").hasAuthority("CLASS_DELETE")
-						// Subject management
 						.requestMatchers("/api/subjects/**").hasAuthority("SUBJECT_VIEW")
 						.requestMatchers("/api/subjects/create").hasAuthority("SUBJECT_CREATE")
 						.requestMatchers("/api/subjects/update/**").hasAuthority("SUBJECT_UPDATE")
 						.requestMatchers("/api/subjects/delete/**").hasAuthority("SUBJECT_DELETE")
-						// Grade management
 						.requestMatchers("/api/grades/**").hasAuthority("GRADE_VIEW")
 						.requestMatchers("/api/grades/create").hasAuthority("GRADE_CREATE")
 						.requestMatchers("/api/grades/update/**").hasAuthority("GRADE_UPDATE")
 						.requestMatchers("/api/grades/delete/**").hasAuthority("GRADE_DELETE")
-						// Schedule management
 						.requestMatchers("/api/schedules/**").hasAuthority("SCHEDULE_VIEW")
 						.requestMatchers("/api/schedules/create").hasAuthority("SCHEDULE_CREATE")
 						.requestMatchers("/api/schedules/update/**").hasAuthority("SCHEDULE_UPDATE")
 						.requestMatchers("/api/schedules/delete/**").hasAuthority("SCHEDULE_DELETE")
-						// Notification management
 						.requestMatchers("/api/notifications/**").hasAuthority("NOTIFICATION_VIEW")
 						.requestMatchers("/api/notifications/create").hasAuthority("NOTIFICATION_CREATE")
-						// Profile
 						.requestMatchers("/api/profile/**").hasAuthority("PROFILE_VIEW")
-						// Department management
 						.requestMatchers("/admin/departments/**").hasAuthority("DEPARTMENT_VIEW")
 						.requestMatchers("/admin/departments/insert").hasAuthority("DEPARTMENT_CREATE")
 						.requestMatchers("/admin/departments/update/**").hasAuthority("DEPARTMENT_UPDATE")
 						.requestMatchers("/admin/departments/delete/**").hasAuthority("DEPARTMENT_DELETE")
-						// Permission management
 						.requestMatchers("/admin/permissions/").hasAuthority("PERMISSION_CREATE")
 						.requestMatchers("/admin/permissions/view/**").hasAuthority("PERMISSION_VIEW")
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_UPDATE")
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_DELETE")
 						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
 						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
+						.requestMatchers("/api/classes/registration/**").hasAuthority("STUDENT_REGISTER").anyRequest()
+						.authenticated());
 
-						// student registration
-						.requestMatchers("/api/classes/registration/**").hasAuthority("STUDENT_REGISTER")
-
-						// Yêu cầu xác thực cho các endpoint khác
-						.anyRequest().authenticated());
-
-		// Thêm JWT filter
-		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(List.of("*")); // Cho phép tất cả header
+		configuration.setAllowCredentials(true);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 
 	@Bean
