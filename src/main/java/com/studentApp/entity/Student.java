@@ -19,19 +19,16 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "tbl_student")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Student {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -65,6 +62,11 @@ public class Student {
 	private Major major;
 
 	@ManyToOne
+<<<<<<< HEAD
     @JoinColumn(name = "class_group_id")
     private ClassGroup classGroup;
+=======
+	@JoinColumn(name = "class_group_id", nullable = false)
+	private ClassGroup classGroup;
+>>>>>>> 3a5c06b4e38ad6658f19fd2bb24e9c743daf733b
 }

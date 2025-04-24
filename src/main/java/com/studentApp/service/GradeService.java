@@ -32,6 +32,7 @@ public class GradeService {
 
 
 
+
     public List<GradeResponse> getAllGrades() {
         List<Grade> grades = gradeRepository.findAll();
         List<GradeResponse> responses = new ArrayList<>();
@@ -52,9 +53,6 @@ public GradeResponse createGrade(GradeCreationRequest request) {
     Student student = studentRepository.findById(request.getStudent_id())
             .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 
-    // Tìm lớp học
-    ClassEntity classEntity = classRepository.findById(request.getClass_id())
-            .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
 
     // Kiểm tra xem điểm đã tồn tại chưa
     boolean exists = gradeRepository.existsByStudentAndClassEntity(student, classEntity);
@@ -66,7 +64,7 @@ public GradeResponse createGrade(GradeCreationRequest request) {
         gradeAdd.setAttendanceScore(request.getAttendance_score());
         gradeAdd.setExamScore(request.getExam_score());
         gradeAdd.setFinalScore(request.getFinal_score());
-        gradeAdd.setClassEntity(classEntity);
+         gradeAdd.setClassEntity(classEntity);
         gradeAdd.setNote(request.getNote());
         
         gradeAdd = gradeRepository.save(gradeAdd);

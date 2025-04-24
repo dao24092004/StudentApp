@@ -12,6 +12,17 @@ CREATE TABLE tbl_registration (
     CONSTRAINT fk_registration_student FOREIGN KEY (student_id) REFERENCES tbl_student(id), -- Khóa ngoại tới tbl_student
     CONSTRAINT fk_registration_semester FOREIGN KEY (semester_id) REFERENCES tbl_semester(id) -- Khóa ngoại tới tbl_semester
 );
+
+CREATE TABLE tbl_teacher_subject_registration (
+    id SERIAL PRIMARY KEY,
+    teacher_id INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
+    semester_id INTEGER NOT NULL,
+    FOREIGN KEY (teacher_id) REFERENCES tbl_teacher(id),
+    FOREIGN KEY (subject_id) REFERENCES tbl_subject(id),
+    FOREIGN KEY (semester_id) REFERENCES tbl_semester(id),
+    UNIQUE (teacher_id, subject_id, semester_id) -- Giáo viên chỉ đăng ký 1 môn 1 lần trong 1 kỳ
+);
 -- Bảng tbl_attendance: Lưu thông tin điểm danh của sinh viên
 CREATE TABLE tbl_attendance (
     id SERIAL PRIMARY KEY,

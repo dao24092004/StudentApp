@@ -37,7 +37,8 @@ INSERT INTO tbl_permission (permission_name, description, created_at, updated_at
 ('PERMISSION_DELETE', 'Delete a permission', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('PERMISSION_ASSIGN', 'Assign a permission to a role', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('PERMISSION_REVOKE', 'Revoke a permission from a role', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('PROFILE_VIEW', 'Xem thông tin cá nhân', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('PROFILE_VIEW', 'Xem thông tin cá nhân', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('STUDENT_REGISTER', 'Sinh vien dang ky hoc phan', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Gán permission cho role Admin (role_id = 1, có tất cả quyền)
 INSERT INTO tbl_role_permission (role_id, permission_id, created_at, updated_at)
@@ -55,5 +56,5 @@ WHERE permission_name IN (
 INSERT INTO tbl_role_permission (role_id, permission_id, created_at, updated_at)
 SELECT 3, id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP FROM tbl_permission
 WHERE permission_name IN (
-    'CLASS_VIEW', 'SUBJECT_VIEW', 'GRADE_VIEW', 'SCHEDULE_VIEW', 'NOTIFICATION_VIEW', 'PROFILE_VIEW'
+    'CLASS_VIEW', 'SUBJECT_VIEW', 'GRADE_VIEW', 'SCHEDULE_VIEW', 'NOTIFICATION_VIEW', 'PROFILE_VIEW','STUDENT_REGISTER'
 );

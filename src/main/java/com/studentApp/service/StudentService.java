@@ -15,6 +15,7 @@ import com.studentApp.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+
 import com.studentApp.dto.request.StudentCreationRequest;
 import com.studentApp.dto.request.StudentUpdateRequest;
 import com.studentApp.dto.response.StudentResponse;
@@ -26,50 +27,56 @@ import com.studentApp.enums.ErrorCode;
 import com.studentApp.enums.Role;
 import com.studentApp.exception.AppException;
 import com.studentApp.mapper.StudentMapper;
+import com.studentApp.repository.MajorRepository;
+import com.studentApp.repository.RoleRepository;
+import com.studentApp.repository.StudentRepository;
+import com.studentApp.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class StudentService {
 
-    private final JwtService jwtService;
+	private final JwtService jwtService;
 
-    @Autowired
-    StudentRepository studentRepository;
+	@Autowired
+	StudentRepository studentRepository;
 
-    @Autowired
-    private MajorRepository majorRepository;
+	@Autowired
+	private MajorRepository majorRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
-    @Autowired 
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+	@Autowired
+	private RoleRepository roleRepository;
+
 
     @Autowired
     private ClassGroupRepository classGroupRepository;
+	StudentService(JwtService jwtService) {
+		this.jwtService = jwtService;
+	}
 
+	public List<StudentResponse> getAllStudent() {
+		List<Student> students = studentRepository.findAll();
+		List<StudentResponse> response = new ArrayList<>();
+		for (Student student : students) {
+			response.add(StudentMapper.toStudentResponse(student));
+		}
+		return response;
+	}
 
-    StudentService(JwtService jwtService) {
-        this.jwtService = jwtService;
-    }
+	public StudentResponse getIDStudent(Long id) {
+		Student student = studentRepository.findById(id)
+				.orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
+		return StudentMapper.toStudentResponse(student);
+	}
 
-
-    public List<StudentResponse> getAllStudent() {
-        List<Student> students = studentRepository.findAll();
-        List<StudentResponse> response = new ArrayList<>();
-        for (Student student : students) {
-            response.add(StudentMapper.toStudentResponse(student));
-        }
-        return response;
-    }
-
-    public StudentResponse getIDStudent(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
-        return StudentMapper.toStudentResponse(student);
-    }
 
     public StudentResponse createStudent(StudentCreationRequest request) {
         if (studentRepository.existsByStudentCode(request.getStudent_code())) {
@@ -156,57 +163,45 @@ public class StudentService {
     
     
     }
-    
-    
-    
-    
 
-    public StudentResponse updateStudent(Long id, StudentUpdateRequest request) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
+	public StudentResponse updateStudent(Long id, StudentUpdateRequest request) {
+		Student student = studentRepository.findById(id)
+				.orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 
-        student.setAddress(request.getAddress());
-        student.setDateOfBirth(request.getDateOfBirth());
-        student.setGender(request.getGender());
-        student.setPhoneNumber(request.getPhoneNumber());
-        student.setStudentName(request.getStudentName());
+		student.setAddress(request.getAddress());
+		student.setDateOfBirth(request.getDateOfBirth());
+		student.setGender(request.getGender());
+		student.setPhoneNumber(request.getPhoneNumber());
+		student.setStudentName(request.getStudentName());
 
+		Student updatedStudent = studentRepository.save(student);
+		return StudentMapper.toStudentResponse(updatedStudent);
 
-        Student updatedStudent = studentRepository.save(student);
-        return StudentMapper.toStudentResponse(updatedStudent);
+	}
 
-        
-    }
+	public void deleteStudent(Long id) {
+		Student student = studentRepository.findById(id)
+				.orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 
-    public void deleteStudent(Long id) {
-        Student student = studentRepository.findById(id)
-        .orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
+		User user = student.getUser();
 
-    User user = student.getUser();
-    
-    studentRepository.delete(student); // Xóa student trước
-    if (user != null) {
-        userRepository.delete(user);   // Xóa user sau
-    }
-    }
-    
+		studentRepository.delete(student); // Xóa student trước
+		if (user != null) {
+			userRepository.delete(user); // Xóa user sau
+		}
+	}
 
-    private String generateStudentCode(Long id) {
-        int currentYear = java.time.Year.now().getValue();
-        return "GV" + currentYear + String.format("%05d", id); // Thêm padding để mã đẹp như GV202500001
-    }
-    
-    private String generateEmail(String name, String teacherCode) {
-        String normalized = name.trim().toLowerCase()
-            .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
-            .replaceAll("[èéẹẻẽêềếệểễ]", "e")
-            .replaceAll("[ìíịỉĩ]", "i")
-            .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
-            .replaceAll("[ùúụủũưừứựửữ]", "u")
-            .replaceAll("[ỳýỵỷỹ]", "y")
-            .replaceAll("đ", "d")
-            .replaceAll("[^a-z0-9]", ""); // loại bỏ ký tự đặc biệt và khoảng trắng
-        return normalized + "_" + teacherCode.toLowerCase() + "@university.edu.vn";
-    }
+	private String generateStudentCode(Long id) {
+		int currentYear = java.time.Year.now().getValue();
+		return "GV" + currentYear + String.format("%05d", id); // Thêm padding để mã đẹp như GV202500001
+	}
+
+	private String generateEmail(String name, String teacherCode) {
+		String normalized = name.trim().toLowerCase().replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+				.replaceAll("[èéẹẻẽêềếệểễ]", "e").replaceAll("[ìíịỉĩ]", "i").replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+				.replaceAll("[ùúụủũưừứựửữ]", "u").replaceAll("[ỳýỵỷỹ]", "y").replaceAll("đ", "d")
+				.replaceAll("[^a-z0-9]", ""); // loại bỏ ký tự đặc biệt và khoảng trắng
+		return normalized + "_" + teacherCode.toLowerCase() + "@university.edu.vn";
+	}
 
 }

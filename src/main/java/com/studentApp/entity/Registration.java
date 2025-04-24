@@ -1,9 +1,6 @@
 package com.studentApp.entity;
 
-
-import jakarta.persistence.*;
-import lombok.*;
-
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,28 +13,27 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "tbl_class_group")
+@Table(name = "tbl_registration")
 @Data
-public class ClassGroup {
+public class Registration {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "group_code", nullable = false, unique = true, length = 20)
-	private String groupCode;
-
-	@Column(name = "group_name", nullable = false, length = 100)
-	private String groupName;
+	@ManyToOne
+	@JoinColumn(name = "class_id", nullable = false)
+	private Class classEntity;
 
 	@ManyToOne
-	@JoinColumn(name = "major_id", nullable = false)
-	private Major major;
-
-	@Column(length = 10)
-	private String shift;
+	@JoinColumn(name = "student_id", nullable = false)
+	private Student student;
 
 	@ManyToOne
 	@JoinColumn(name = "semester_id", nullable = false)
 	private Semester semester;
-}
 
+	@Column(name = "registration_date")
+	private LocalDate registrationDate;
+
+	private String status;
+}

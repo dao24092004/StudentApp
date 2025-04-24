@@ -1,11 +1,5 @@
 package com.studentApp.entity;
 
-
-import jakarta.persistence.*;
-import lombok.*;
-
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,28 +10,22 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "tbl_class_group")
+@Table(name = "tbl_teacher_subject_registration")
 @Data
-public class ClassGroup {
+public class TeacherSubjectRegistration {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "group_code", nullable = false, unique = true, length = 20)
-	private String groupCode;
-
-	@Column(name = "group_name", nullable = false, length = 100)
-	private String groupName;
+	@ManyToOne
+	@JoinColumn(name = "teacher_id", nullable = false)
+	private Teacher teacher;
 
 	@ManyToOne
-	@JoinColumn(name = "major_id", nullable = false)
-	private Major major;
-
-	@Column(length = 10)
-	private String shift;
+	@JoinColumn(name = "subject_id", nullable = false)
+	private Subject subject;
 
 	@ManyToOne
 	@JoinColumn(name = "semester_id", nullable = false)
 	private Semester semester;
 }
-

@@ -29,6 +29,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Teacher {
+	public Teacher(Long teacherId) {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
