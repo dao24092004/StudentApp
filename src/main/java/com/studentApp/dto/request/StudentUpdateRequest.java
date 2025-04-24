@@ -1,29 +1,21 @@
 package com.studentApp.dto.request;
 
-import java.util.Date;
+import java.sql.Date;
 
-import com.studentApp.enums.Gender;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 public class StudentUpdateRequest {
 
-    @JsonProperty("student_name")
-    private String studentName;
+	private String studentName;
 
-    @JsonProperty("date_of_birth")
-    private Date dateOfBirth;
+	private Date dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    @JsonProperty("gender")
-    private Gender gender;
+	@Pattern(regexp = "Male|Female", message = "Gender must be one of: Male, Female")
+	private String gender;
 
-    @JsonProperty("address")
-    private String address;
+	private String address;
 
-    @JsonProperty("phone_number")
-    private String phoneNumber;
+	private String phoneNumber;
 }

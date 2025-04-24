@@ -33,7 +33,7 @@ public class Student {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_id", unique = true)
 	@JsonManagedReference
 	private User user;
@@ -57,11 +57,11 @@ public class Student {
 	@Column(name = "phone_number", unique = true, length = 15)
 	private String phoneNumber;
 
-	@ManyToOne
+	@ManyToOne(optional = false, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "major_id", nullable = false)
 	private Major major;
 
-	@ManyToOne
+	@ManyToOne(optional = false, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "class_group_id", nullable = false)
 	private ClassGroup classGroup;
 }

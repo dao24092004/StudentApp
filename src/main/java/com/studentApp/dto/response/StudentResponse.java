@@ -24,6 +24,7 @@ public class StudentResponse {
 	@JsonProperty("date_of_birth")
 	private Date dateOfBirth;
 
+	@JsonProperty("user_email")
 	private String userEmail;
 
 	@JsonProperty("gender")
@@ -35,5 +36,15 @@ public class StudentResponse {
 	@JsonProperty("phone_number")
 	private String phoneNumber;
 
+	@JsonProperty("student_email")
 	private String studentEmail;
+
+	@JsonProperty("major_id")
+	private String majorId; // Chuyển từ Long thành String
+
+	@JsonProperty("class_group_id")
+	private String classGroupId; // Chuyển từ Long thành String
+
+	@JsonProperty("user_id")
+	private String userId; // Chuyển từ Long thành String
 }

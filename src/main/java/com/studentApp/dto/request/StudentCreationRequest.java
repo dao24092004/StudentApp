@@ -1,29 +1,39 @@
 package com.studentApp.dto.request;
 
-import java.util.Date;
+import java.sql.Date;
 
-import com.studentApp.enums.Gender;
-
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor; // Đảm bảo có constructor không tham số
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class StudentCreationRequest {
 
-	private String student_code;
+	@NotBlank(message = "Student name is required")
 	private String student_name;
+
+	@NotNull(message = "Date of birth is required")
 	private Date date_of_birth;
-	@Enumerated(EnumType.STRING)
-	private Gender gender;
+
+	@NotBlank(message = "Gender is required")
+	@Pattern(regexp = "Male|Female", message = "Gender must be one of: Male, Female")
+	private String gender;
+
 	private String address;
+
 	private String phone_number;
+
+	@NotNull(message = "Major ID is required")
 	private Long major_id;
+
+	@NotNull(message = "Class group ID is required")
+	private Long class_group_id;
+
+	@NotBlank(message = "Email is required")
+	@Email(message = "Invalid email format")
 	private String emailUser;
 }

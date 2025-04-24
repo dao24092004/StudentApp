@@ -3,19 +3,25 @@ package com.studentApp.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.studentApp.dto.request.StudentCreationRequest;
 import com.studentApp.dto.request.StudentUpdateRequest;
 import com.studentApp.dto.response.StudentResponse;
+import com.studentApp.entity.ClassGroup;
 import com.studentApp.entity.Major;
+import com.studentApp.entity.Role;
 import com.studentApp.entity.Student;
 import com.studentApp.entity.User;
 import com.studentApp.enums.ErrorCode;
-import com.studentApp.enums.Role;
+import com.studentApp.enums.Gender;
 import com.studentApp.exception.AppException;
 import com.studentApp.mapper.StudentMapper;
+import com.studentApp.repository.ClassGroupRepository;
 import com.studentApp.repository.MajorRepository;
 import com.studentApp.repository.RoleRepository;
 import com.studentApp.repository.StudentRepository;
@@ -23,20 +29,23 @@ import com.studentApp.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.validation.Valid;
 
 @Service
 public class StudentService {
 
+	private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
+
 	private final JwtService jwtService;
 
 	@Autowired
-	StudentRepository studentRepository;
+	private StudentRepository studentRepository;
 
 	@Autowired
 	private MajorRepository majorRepository;
 
-	@PersistenceContext
-	private EntityManager entityManager;
+	@Autowired
+	private ClassGroupRepository classGroupRepository;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -44,7 +53,10 @@ public class StudentService {
 	@Autowired
 	private RoleRepository roleRepository;
 
-	StudentService(JwtService jwtService) {
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	public StudentService(JwtService jwtService) {
 		this.jwtService = jwtService;
 	}
 
@@ -58,113 +70,153 @@ public class StudentService {
 	}
 
 	public StudentResponse getIDStudent(Long id) {
+		if (id == null) {
+			throw new AppException(ErrorCode.INVALID_CREDENTIALS, "Student ID must not be null");
+		}
 		Student student = studentRepository.findById(id)
 				.orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 		return StudentMapper.toStudentResponse(student);
 	}
 
-	public StudentResponse createStudent(StudentCreationRequest request) {
-		if (studentRepository.existsByStudentCode(request.getStudent_code())) {
-			throw new AppException(ErrorCode.STUDENT_ALREADY_EXISTS);
+	@Transactional
+	public StudentResponse createStudent(@Valid StudentCreationRequest request) {
+		// Kiểm tra trùng lặp phoneNumber
+		if (request.getPhone_number() != null && studentRepository.existsByPhoneNumber(request.getPhone_number())) {
+			logger.warn("Student with phone number {} already exists", request.getPhone_number());
+			throw new AppException(ErrorCode.STUDENT_ALREADY_EXISTS,
+					"Student with phone number '" + request.getPhone_number() + "' already exists.");
 		}
 
-		User user = userRepository.findByEmail(request.getEmailUser());
-
-		// Kiểm tra nếu email đã tồn tại trong hệ thống
-		if (user != null) {
-			// Nếu user đã tồn tại, gán role cho user và lưu lại
-			Role studentRoleEnum = Role.STUDENT;
-			com.studentApp.entity.Role studentRoleEntity = roleRepository.findByRoleName(studentRoleEnum.name())
-					.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
-			user.setRole(studentRoleEntity);
-			userRepository.save(user); // Lưu user đã được cập nhật
-
-			// Thêm thông tin sinh viên
-			Major major = majorRepository.findById(request.getMajor_id())
-					.orElseThrow(() -> new AppException(ErrorCode.MAJOR_NOT_FOUND));
-
-			Student studentAdd = new Student();
-			studentAdd.setAddress(request.getAddress());
-			studentAdd.setDateOfBirth(request.getDate_of_birth());
-			studentAdd.setGender(request.getGender());
-			studentAdd.setPhoneNumber(request.getPhone_number());
-			studentAdd.setStudentCode(request.getStudent_code());
-			studentAdd.setStudentName(request.getStudent_name());
-			studentAdd.setMajor(major);
-
-			studentAdd = studentRepository.save(studentAdd);
-			return StudentMapper.toStudentResponse(studentAdd);
-		} else {
-			// Nếu user chưa tồn tại, tạo mới user với email từ request
-			User newUser = new User();
-			newUser.setUsername(request.getStudent_name());
-			newUser.setPassword(jwtService.encodePassword("password123"));
-
-			Role studentRoleEnum = Role.STUDENT;
-			com.studentApp.entity.Role studentRoleEntity = roleRepository.findByRoleName(studentRoleEnum.name())
-					.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
-			newUser.setRole(studentRoleEntity);
-			newUser.setEmail(request.getEmailUser()); // Gán email nhập từ bên ngoài vào
-
-			userRepository.save(newUser); // Lưu user mới
-
-			Major major = majorRepository.findById(request.getMajor_id())
-					.orElseThrow(() -> new AppException(ErrorCode.MAJOR_NOT_FOUND));
-
-			Student studentAdd = new Student();
-			studentAdd.setAddress(request.getAddress());
-			studentAdd.setDateOfBirth(request.getDate_of_birth());
-			studentAdd.setGender(request.getGender());
-			studentAdd.setPhoneNumber(request.getPhone_number());
-			studentAdd.setStudentCode(request.getStudent_code());
-			studentAdd.setStudentName(request.getStudent_name());
-			studentAdd.setMajor(major);
-
-			studentAdd = studentRepository.save(studentAdd);
-			return StudentMapper.toStudentResponse(studentAdd);
+		// Kiểm tra trùng lặp email
+		if (userRepository.existsByEmail(request.getEmailUser())) {
+			logger.warn("User with email {} already exists", request.getEmailUser());
+			throw new AppException(ErrorCode.USER_NOT_FOUND,
+					"User with email '" + request.getEmailUser() + "' already exists.");
 		}
+
+		// Kiểm tra majorId
+		Major major = majorRepository.findById(request.getMajor_id()).orElseThrow(() -> {
+			logger.warn("Major with ID {} not found", request.getMajor_id());
+			return new AppException(ErrorCode.MAJOR_NOT_FOUND,
+					"Major with ID " + request.getMajor_id() + " not found.");
+		});
+
+		// Kiểm tra classGroupId
+		ClassGroup classGroup = classGroupRepository.findById(request.getClass_group_id()).orElseThrow(() -> {
+			logger.warn("Class group with ID {} not found", request.getClass_group_id());
+			return new AppException(ErrorCode.USERNAME_ALREADY_EXISTS,
+					"Class group with ID " + request.getClass_group_id() + " not found.");
+		});
+
+		// Tạo user mới
+		User user = new User();
+		user.setUsername(request.getStudent_name());
+		user.setPassword(jwtService.encodePassword("password123"));
+		user.setEmail(request.getEmailUser());
+
+		Role studentRoleEntity = roleRepository.findByRoleName("STUDENT")
+				.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+		user.setRole(studentRoleEntity);
+
+		// Tạo student
+		Student student = new Student();
+		student.setStudentName(request.getStudent_name());
+		student.setDateOfBirth(request.getDate_of_birth());
+
+		// Chuyển đổi String gender thành enum Gender
+		try {
+			Gender gender = Gender.valueOf(request.getGender());
+			student.setGender(gender);
+		} catch (IllegalArgumentException e) {
+			throw new AppException(ErrorCode.INVALID_CREDENTIALS,
+					"Invalid gender value: " + request.getGender() + ". Allowed values are: Male, Female");
+		}
+
+		student.setAddress(request.getAddress());
+		student.setPhoneNumber(request.getPhone_number());
+		student.setMajor(major);
+		student.setClassGroup(classGroup);
+		student.setUser(user);
+
+		// Lưu user trước để có user_id
+		User savedUser = userRepository.save(user);
+		student.setUser(savedUser);
+
+		// Sinh studentCode tạm thời
+		String tempStudentCode = "TEMP_" + System.currentTimeMillis();
+		student.setStudentCode(tempStudentCode);
+
+		// Lưu student lần đầu
+		Student savedStudent = studentRepository.save(student);
+
+		// Sinh studentCode chính thức dựa trên id
+		String studentCode = generateStudentCode(savedStudent.getId());
+		savedStudent.setStudentCode(studentCode);
+
+		// Lưu lại student với studentCode đã sinh
+		savedStudent = studentRepository.save(savedStudent);
+		logger.info("Created student with ID {} and studentCode {}", savedStudent.getId(),
+				savedStudent.getStudentCode());
+
+		return StudentMapper.toStudentResponse(savedStudent);
 	}
 
-	public StudentResponse updateStudent(Long id, StudentUpdateRequest request) {
+	@Transactional
+	public StudentResponse updateStudent(Long id, @Valid StudentUpdateRequest request) {
+		if (id == null) {
+			throw new AppException(ErrorCode.INVALID_CREDENTIALS, "Student ID must not be null");
+		}
+
 		Student student = studentRepository.findById(id)
 				.orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 
+		if (request.getPhoneNumber() != null) {
+			studentRepository.findByPhoneNumber(request.getPhoneNumber()).ifPresent(existing -> {
+				if (!existing.getId().equals(id)) {
+					logger.warn("Student with phone number {} already exists", request.getPhoneNumber());
+					throw new AppException(ErrorCode.STUDENT_ALREADY_EXISTS,
+							"Student with phone number '" + request.getPhoneNumber() + "' already exists.");
+				}
+			});
+		}
+
 		student.setAddress(request.getAddress());
 		student.setDateOfBirth(request.getDateOfBirth());
-		student.setGender(request.getGender());
+
+		// Chuyển đổi String gender thành enum Gender
+		if (request.getGender() != null) {
+			try {
+				Gender gender = Gender.valueOf(request.getGender());
+				student.setGender(gender);
+			} catch (IllegalArgumentException e) {
+				throw new AppException(ErrorCode.INVALID_CREDENTIALS,
+						"Invalid gender value: " + request.getGender() + ". Allowed values are: Male, Female");
+			}
+		}
+
 		student.setPhoneNumber(request.getPhoneNumber());
 		student.setStudentName(request.getStudentName());
 
 		Student updatedStudent = studentRepository.save(student);
+		logger.info("Updated student with ID {}", updatedStudent.getId());
 		return StudentMapper.toStudentResponse(updatedStudent);
-
 	}
 
+	@Transactional
 	public void deleteStudent(Long id) {
+		if (id == null) {
+			throw new AppException(ErrorCode.INVALID_CREDENTIALS, "Student ID must not be null");
+		}
+
 		Student student = studentRepository.findById(id)
 				.orElseThrow(() -> new AppException(ErrorCode.STUDENT_NOT_FOUND));
 
-		User user = student.getUser();
-
-		studentRepository.delete(student); // Xóa student trước
-		if (user != null) {
-			userRepository.delete(user); // Xóa user sau
-		}
+		studentRepository.delete(student);
+		logger.info("Deleted student with ID {}", id);
 	}
 
 	private String generateStudentCode(Long id) {
 		int currentYear = java.time.Year.now().getValue();
-		return "GV" + currentYear + String.format("%05d", id); // Thêm padding để mã đẹp như GV202500001
+		return "SV" + currentYear + String.format("%05d", id);
 	}
-
-	private String generateEmail(String name, String teacherCode) {
-		String normalized = name.trim().toLowerCase().replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
-				.replaceAll("[èéẹẻẽêềếệểễ]", "e").replaceAll("[ìíịỉĩ]", "i").replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
-				.replaceAll("[ùúụủũưừứựửữ]", "u").replaceAll("[ỳýỵỷỹ]", "y").replaceAll("đ", "d")
-				.replaceAll("[^a-z0-9]", ""); // loại bỏ ký tự đặc biệt và khoảng trắng
-		return normalized + "_" + teacherCode.toLowerCase() + "@university.edu.vn";
-	}
-
 }

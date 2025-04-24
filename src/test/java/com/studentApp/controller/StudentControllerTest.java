@@ -26,7 +26,6 @@ import com.studentApp.config.TestSecurityConfig;
 import com.studentApp.dto.request.StudentCreationRequest;
 import com.studentApp.dto.response.StudentResponse;
 import com.studentApp.enums.ErrorCode;
-import com.studentApp.enums.Gender;
 import com.studentApp.exception.AppException;
 import com.studentApp.security.JwtAuthenticationFilter;
 import com.studentApp.service.StudentService;
@@ -56,12 +55,13 @@ public class StudentControllerTest {
 		objectMapper.registerModule(new JavaTimeModule());
 
 		studentCreationRequest = StudentCreationRequest.builder().student_name("Nguyen Van B")
-				.date_of_birth(Date.valueOf("2000-01-01")).emailUser("nguyenvanb@gmail.com").gender(Gender.Female)
-				.address("456 Hanoi").phone_number("0987654321").build();
+				.date_of_birth(Date.valueOf("2000-01-01")).emailUser("nguyenvanb@gmail.com").gender("Female")
+				.address("456 Hanoi").phone_number("0987654321").major_id(1L).class_group_id(1L).build();
 
-		studentResponse = StudentResponse.builder().studentCode("STU002").studentName("Nguyen Van B")
-				.dateOfBirth(Date.valueOf("2000-01-01")).userEmail("nguyenvanb@gmail.com").gender("Female")
-				.address("456 Hanoi").phoneNumber("0987654321").studentEmail("svb@university.edu").build();
+		studentResponse = StudentResponse.builder().studentCode("SV202500001") // Giá trị sinh tự động
+				.studentName("Nguyen Van B").dateOfBirth(Date.valueOf("2000-01-01")).userEmail("nguyenvanb@gmail.com")
+				.gender("Female").address("456 Hanoi").phoneNumber("0987654321")
+				.studentEmail("nguyenvanb_sv202500001@university.edu.vn").build();
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class StudentControllerTest {
 				.thenReturn(studentResponse);
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/student").contentType(MediaType.APPLICATION_JSON)
 				.content(content)).andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.student_code").value("STU002"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.student_code").value("SV202500001"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.student_name").value("Nguyen Van B"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.userEmail").value("nguyenvanb@gmail.com"));
 	}
@@ -83,11 +83,23 @@ public class StudentControllerTest {
 		studentCreationRequest.setEmailUser("existing@example.com");
 		String content = objectMapper.writeValueAsString(studentCreationRequest);
 		Mockito.when(studentService.createStudent(ArgumentMatchers.any(StudentCreationRequest.class)))
-				.thenThrow(new AppException(ErrorCode.STUDENT_ALREADY_EXISTS));
+				.thenThrow(new AppException(ErrorCode.USERNAME_ALREADY_EXISTS));
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/student").contentType(MediaType.APPLICATION_JSON)
 				.content(content)).andExpect(MockMvcResultMatchers.status().isBadRequest())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(1026))
-				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value("STUDENT EXISTS ASSIGNED"));
+				.andExpect(MockMvcResultMatchers.jsonPath("$.code").value(1003)) // Giả sử USER_ALREADY_EXISTS có code
+																					// 1003
+				.andExpect(MockMvcResultMatchers.jsonPath("$.message")
+						.value("User with email 'existing@example.com' already exists."));
+	}
+
+	@Test
+	@WithMockUser(username = "admin", authorities = { "USER_CREATE" })
+	void createStudent_invalidGender_fails() throws Exception {
+		studentCreationRequest.setGender("Other");
+		String content = objectMapper.writeValueAsString(studentCreationRequest);
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/student").contentType(MediaType.APPLICATION_JSON)
+				.content(content)).andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Gender must be one of: Male, Female"));
 	}
 
 	@Test
@@ -97,7 +109,7 @@ public class StudentControllerTest {
 		Mockito.when(studentService.getIDStudent(studentId)).thenReturn(studentResponse);
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/users/student/{id}", studentId)
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.student_code").value("STU002"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.student_code").value("SV202500001"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.student_name").value("Nguyen Van B"));
 	}
 
@@ -107,7 +119,7 @@ public class StudentControllerTest {
 		Mockito.when(studentService.getAllStudent()).thenReturn(List.of(studentResponse));
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/users/student").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$[0].student_code").value("STU002"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$[0].student_code").value("SV202500001"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$[0].student_name").value("Nguyen Van B"));
 	}
 
@@ -119,17 +131,18 @@ public class StudentControllerTest {
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/student").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(studentCreationRequest)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.student_code").value("STU002"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.student_code").value("SV202500001"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.student_name").value("Nguyen Van B"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.userEmail").value("nguyenvanb@gmail.com"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.gender").value("Female"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.address").value("456 Hanoi"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.phone_number").value("0987654321"))
-				.andExpect(MockMvcResultMatchers.jsonPath("$.studentEmail").value("svb@university.edu"));
+				.andExpect(MockMvcResultMatchers.jsonPath("$.studentEmail")
+						.value("nguyenvanb_sv202500001@university.edu.vn"));
 	}
 
 	@Test
-	@WithMockUser(username = "admin", authorities = { "USER_UPDATE" })
+	@WithMockUser(username = "admin", authorities = { "USER_DELETE" })
 	void deleteStudent_validId_success() throws Exception {
 		long studentId = 1L;
 		Mockito.doNothing().when(studentService).deleteStudent(studentId);

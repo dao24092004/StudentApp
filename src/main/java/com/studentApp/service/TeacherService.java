@@ -2,6 +2,7 @@ package com.studentApp.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,60 +76,45 @@ public class TeacherService {
 					"Department with ID " + request.getDeptId() + " not found.");
 		});
 
-		User user = userRepository.findByEmail(request.getUserEmail());
-		if (user != null) {
-			Role roleEntity = roleRepository.findByRoleName(com.studentApp.enums.Role.TEACHER.name())
+		// Kiểm tra email trùng lặp và lấy user nếu tồn tại
+		Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
+		User user;
+		if (userOptional.isPresent()) {
+			user = userOptional.get();
+			Role roleEntity = roleRepository.findByRoleName("TEACHER")
+					.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+			user.setRole(roleEntity);
+		} else {
+			user = new User();
+			user.setUsername(request.getTeacherName());
+			user.setPassword(jwtService.encodePassword("password123"));
+			user.setEmail(request.getUserEmail());
+
+			Role roleEntity = roleRepository.findByRoleName("TEACHER")
 					.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 			user.setRole(roleEntity);
 
-			Teacher teacher = new Teacher();
-			String teacherCode = generateTeacherCode(user.getId());
-			String teacherEmail = generateEmail(user.getUsername(), teacherCode);
-			teacher.setTeacherCode(teacherCode);
-			teacher.setTeacherName(request.getTeacherName());
-			teacher.setTeacherDateOfBirth(request.getTeacherDateOfBirth());
-			teacher.setTeacherGender(request.getTeacherGender());
-			teacher.setTeacherAddress(request.getTeacherAddress());
-			teacher.setTeacherPhoneNumber(request.getTeacherPhoneNumber());
-			teacher.setTeacherEmail(teacherEmail);
-			teacher.setUser(user);
-			teacher.setDepartment(department);
-
-			Teacher savedTeacher = teacherRepository.save(teacher);
-			logger.info("Created teacher with ID {} and teacherCode {}", savedTeacher.getId(),
-					savedTeacher.getTeacherCode());
-			return TeacherMapper.toTeacherResponse(savedTeacher);
-		} else {
-			User newUser = new User();
-			newUser.setUsername(request.getTeacherName());
-			newUser.setPassword(jwtService.encodePassword("password123"));
-
-			Role roleEntity = roleRepository.findByRoleName(com.studentApp.enums.Role.TEACHER.name())
-					.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-			newUser.setRole(roleEntity);
-			newUser.setEmail(request.getUserEmail());
-
-			User savedUser = userRepository.save(newUser);
-			logger.info("Created user with ID {} for teacher", savedUser.getId());
-
-			Teacher teacher = new Teacher();
-			String teacherCode = generateTeacherCode(savedUser.getId());
-			String teacherEmail = generateEmail(request.getTeacherName(), teacherCode);
-			teacher.setTeacherCode(teacherCode);
-			teacher.setTeacherName(request.getTeacherName());
-			teacher.setTeacherDateOfBirth(request.getTeacherDateOfBirth());
-			teacher.setTeacherGender(request.getTeacherGender());
-			teacher.setTeacherAddress(request.getTeacherAddress());
-			teacher.setTeacherPhoneNumber(request.getTeacherPhoneNumber());
-			teacher.setTeacherEmail(teacherEmail);
-			teacher.setUser(savedUser);
-			teacher.setDepartment(department);
-
-			Teacher savedTeacher = teacherRepository.save(teacher);
-			logger.info("Created teacher with ID {} and teacherCode {}", savedTeacher.getId(),
-					savedTeacher.getTeacherCode());
-			return TeacherMapper.toTeacherResponse(savedTeacher);
+			user = userRepository.save(user);
+			logger.info("Created user with ID {} for teacher", user.getId());
 		}
+
+		Teacher teacher = new Teacher();
+		String teacherCode = generateTeacherCode(user.getId());
+		String teacherEmail = generateEmail(user.getUsername(), teacherCode);
+		teacher.setTeacherCode(teacherCode);
+		teacher.setTeacherName(request.getTeacherName());
+		teacher.setTeacherDateOfBirth(request.getTeacherDateOfBirth());
+		teacher.setTeacherGender(request.getTeacherGender());
+		teacher.setTeacherAddress(request.getTeacherAddress());
+		teacher.setTeacherPhoneNumber(request.getTeacherPhoneNumber());
+		teacher.setTeacherEmail(teacherEmail);
+		teacher.setUser(user);
+		teacher.setDepartment(department);
+
+		Teacher savedTeacher = teacherRepository.save(teacher);
+		logger.info("Created teacher with ID {} and teacherCode {}", savedTeacher.getId(),
+				savedTeacher.getTeacherCode());
+		return TeacherMapper.toTeacherResponse(savedTeacher);
 	}
 
 	@Transactional
@@ -136,7 +122,6 @@ public class TeacherService {
 		Teacher teacher = teacherRepository.findById(id)
 				.orElseThrow(() -> new AppException(ErrorCode.TEACHER_NOT_FOUND));
 
-		// Kiểm tra trùng lặp phone number (trừ chính nó)
 		teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber()).ifPresent(existing -> {
 			if (!existing.getId().equals(id)) {
 				logger.warn("Teacher with phone number {} already exists", request.getTeacherPhoneNumber());
@@ -145,7 +130,6 @@ public class TeacherService {
 			}
 		});
 
-		// Kiểm tra deptId nếu có
 		if (request.getDeptId() != null) {
 			Department department = departmentRepository.findById(request.getDeptId()).orElseThrow(() -> {
 				logger.warn("Department with ID {} not found", request.getDeptId());

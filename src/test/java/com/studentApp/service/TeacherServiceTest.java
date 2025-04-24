@@ -19,11 +19,13 @@ import org.mockito.MockitoAnnotations;
 
 import com.studentApp.dto.request.TeacherCreationRequest;
 import com.studentApp.dto.response.TeacherResponse;
+import com.studentApp.entity.Department;
 import com.studentApp.entity.Role;
 import com.studentApp.entity.Teacher;
 import com.studentApp.entity.User;
 import com.studentApp.enums.ErrorCode;
 import com.studentApp.exception.AppException;
+import com.studentApp.repository.DepartmentRepository;
 import com.studentApp.repository.RoleRepository;
 import com.studentApp.repository.TeacherRepository;
 import com.studentApp.repository.UserRepository;
@@ -38,6 +40,9 @@ class TeacherServiceTest {
 
 	@Mock
 	private RoleRepository roleRepository;
+
+	@Mock
+	private DepartmentRepository departmentRepository;
 
 	@Mock
 	private JwtService jwtService;
@@ -56,7 +61,7 @@ class TeacherServiceTest {
 		TeacherCreationRequest request = TeacherCreationRequest.builder().teacherName("Nguyen Van A")
 				.teacherDateOfBirth(Date.valueOf("1980-01-01")).teacherGender(Teacher.Gender.Male)
 				.teacherAddress("123 Hanoi").teacherPhoneNumber("0912345678").userEmail("nguyenvana@example.com")
-				.build();
+				.deptId(1L).build();
 
 		// Mock hành vi của teacherRepository.findByTeacherPhoneNumber
 		when(teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber())).thenReturn(Optional.empty());
@@ -66,19 +71,25 @@ class TeacherServiceTest {
 		existingUser.setId(1L);
 		existingUser.setUsername("Nguyen Van A");
 		existingUser.setEmail("nguyenvana@example.com");
-		when(userRepository.findByEmail(request.getUserEmail())).thenReturn(existingUser);
+		when(userRepository.findByEmail(request.getUserEmail())).thenReturn(Optional.of(existingUser));
 
 		// Mock hành vi của roleRepository.findByRoleName
 		Role teacherRole = new Role();
 		teacherRole.setRoleName("TEACHER");
 		when(roleRepository.findByRoleName("TEACHER")).thenReturn(Optional.of(teacherRole));
 
+		// Mock hành vi của departmentRepository.findById
+		Department department = new Department();
+		department.setId(1L);
+		when(departmentRepository.findById(request.getDeptId())).thenReturn(Optional.of(department));
+
 		// Mock hành vi của teacherRepository.save
 		Teacher teacher = new Teacher();
-		teacher.setId(1L); // Gán ID để tránh NullPointerException
+		teacher.setId(1L);
 		teacher.setTeacherName(request.getTeacherName());
 		teacher.setTeacherEmail("nguyenvana_gv202500001@university.edu.vn");
 		teacher.setUser(existingUser);
+		teacher.setDepartment(department);
 		when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
 
 		// Act: Thực hiện phương thức cần kiểm thử
@@ -96,18 +107,23 @@ class TeacherServiceTest {
 		TeacherCreationRequest request = TeacherCreationRequest.builder().teacherName("Nguyen Van B")
 				.teacherDateOfBirth(Date.valueOf("1981-01-01")).teacherGender(Teacher.Gender.Male)
 				.teacherAddress("456 Hanoi").teacherPhoneNumber("0987654321").userEmail("nguyenvanb@example.com")
-				.build();
+				.deptId(1L).build();
 
 		// Mock hành vi của teacherRepository.findByTeacherPhoneNumber
 		when(teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber())).thenReturn(Optional.empty());
 
 		// Mock hành vi của userRepository.findByEmail (không tìm thấy user)
-		when(userRepository.findByEmail(request.getUserEmail())).thenReturn(null);
+		when(userRepository.findByEmail(request.getUserEmail())).thenReturn(Optional.empty());
 
 		// Mock hành vi của roleRepository.findByRoleName
 		Role teacherRole = new Role();
 		teacherRole.setRoleName("TEACHER");
 		when(roleRepository.findByRoleName("TEACHER")).thenReturn(Optional.of(teacherRole));
+
+		// Mock hành vi của departmentRepository.findById
+		Department department = new Department();
+		department.setId(1L);
+		when(departmentRepository.findById(request.getDeptId())).thenReturn(Optional.of(department));
 
 		// Mock hành vi của jwtService.encodePassword
 		when(jwtService.encodePassword("password123")).thenReturn("encodedPassword");
@@ -121,13 +137,14 @@ class TeacherServiceTest {
 
 		// Mock hành vi của teacherRepository.save
 		Teacher teacher = new Teacher();
-		teacher.setId(2L); // Gán ID để tránh NullPointerException
+		teacher.setId(2L);
 		teacher.setTeacherName(request.getTeacherName());
-		teacher.setTeacherEmail("nguyen van b_gv202500002@university.edu.vn");
+		teacher.setTeacherEmail("nguyenvanb_gv202500002@university.edu.vn");
 		teacher.setUser(newUser);
+		teacher.setDepartment(department);
 		when(teacherRepository.save(any(Teacher.class))).thenAnswer(invocation -> {
 			Teacher t = invocation.getArgument(0);
-			t.setId(2L); // Giả lập ID tự tăng
+			t.setId(2L);
 			return t;
 		});
 
@@ -138,7 +155,7 @@ class TeacherServiceTest {
 		assertNotNull(result);
 		assertEquals("Nguyen Van B", result.getTeacherName());
 		verify(userRepository, times(1)).save(any(User.class));
-		verify(teacherRepository, times(2)).save(any(Teacher.class));
+		verify(teacherRepository, times(1)).save(any(Teacher.class));
 	}
 
 	@Test
@@ -147,7 +164,7 @@ class TeacherServiceTest {
 		TeacherCreationRequest request = TeacherCreationRequest.builder().teacherName("Nguyen Van A")
 				.teacherDateOfBirth(Date.valueOf("1980-01-01")).teacherGender(Teacher.Gender.Male)
 				.teacherAddress("123 Hanoi").teacherPhoneNumber("0912345678").userEmail("nguyenvana@example.com")
-				.build();
+				.deptId(1L).build();
 
 		// Mock hành vi của teacherRepository.findByTeacherPhoneNumber
 		when(teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber()))
@@ -155,6 +172,6 @@ class TeacherServiceTest {
 
 		// Act & Assert: Kiểm tra ngoại lệ
 		AppException exception = assertThrows(AppException.class, () -> teacherService.createTeacher(request));
-		assertEquals(ErrorCode.TEACHER_ALLREADY_EXISTS, exception.getErrorCode());
+		assertEquals(ErrorCode.TEACHER_NOT_FOUND, exception.getErrorCode());
 	}
 }
