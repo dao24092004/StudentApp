@@ -2,6 +2,8 @@ package com.studentApp.entity;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,9 +20,11 @@ public class Semester {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "start_date")
+	@Column(name = "start_date", nullable = false)
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate startDate;
 
-	@Column(name = "end_date")
+	@Column(name = "end_date", nullable = false)
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate endDate;
 }
