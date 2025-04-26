@@ -19,7 +19,10 @@ public enum ErrorCode {
 	TEACHER_NOT_FOUND(3001, "Teacher not found"),TEACHER_ALLREADY_EXISTS(3002, "Teacher allready exists"),
 	STUDENT_NOT_FOUND(1025, "STUDENT NOT FOUND"),
 	STUDENT_ALREADY_EXISTS(1026, "STUDENT EXISTS ASSIGNED"),
-	MAJOR_NOT_FOUND(1027, "Major not found"),;
+	MAJOR_NOT_FOUND(1027, "Major not found"),
+	GRADE_NOT_FOUND(1028, "Grade not found"),
+	CLASS_NOT_FOUND(1028, "Class not found"),;
+
 
 
 	private final int code;
