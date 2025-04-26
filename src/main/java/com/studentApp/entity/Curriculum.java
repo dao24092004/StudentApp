@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -18,7 +19,8 @@ import lombok.Data;
 public class Curriculum {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "curriculum_seq")
+	@SequenceGenerator(name = "curriculum_seq", sequenceName = "tbl_curriculum_id_seq", allocationSize = 1)
 	private Long id;
 
 	@Column(name = "curriculum_code", nullable = false, unique = true, length = 20)

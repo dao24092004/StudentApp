@@ -64,7 +64,7 @@ public class SchedulingController {
 	}
 
 	@PostMapping("/schedules/generate")
-	@PreAuthorize("hasAuthority('CLASS_VIEW')")
+	@PreAuthorize("hasAuthority('SCHEDULE_CREATE')")
 	public ResponseEntity<Map<String, String>> generateSchedule(@RequestBody ScheduleRequest request) throws Exception {
 		schedulingService.generateSchedule(request.getSemesterId());
 		return ResponseEntity.ok(Map.of("status", "success"));
@@ -93,7 +93,7 @@ public class SchedulingController {
 	}
 
 	@GetMapping("/schedules/week")
-	@PreAuthorize("hasAuthority('CLASS_VIEW')")
+	@PreAuthorize("hasAnyAuthority('CLASS_VIEW', 'TEACHER_VIEW', 'STUDENT_VIEW')")
 	public ResponseEntity<List<ScheduleResponse>> getScheduleByWeek(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -101,7 +101,7 @@ public class SchedulingController {
 	}
 
 	@GetMapping("/schedules/day")
-	@PreAuthorize("hasAuthority('CLASS_VIEW')")
+	@PreAuthorize("hasAnyAuthority('CLASS_VIEW', 'TEACHER_VIEW', 'STUDENT_VIEW')")
 	public ResponseEntity<List<ScheduleResponse>> getScheduleByDay(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		return ResponseEntity.ok(schedulingService.getScheduleByDay(date));

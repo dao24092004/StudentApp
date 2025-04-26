@@ -52,10 +52,20 @@ public class SecurityConfig {
 						.hasAuthority("USER_VIEW").requestMatchers("/api/users/create").hasAuthority("USER_CREATE")
 						.requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
 						.requestMatchers("/api/users/delete/**").hasAuthority("USER_DELETE")
-						.requestMatchers("/api/classes/**").hasAuthority("CLASS_VIEW")
-						.requestMatchers("/api/classes/create/**").hasAuthority("CLASS_CREATE")
-						.requestMatchers("/api/classes/update/**").hasAuthority("CLASS_UPDATE")
-						.requestMatchers("/api/classes/delete/**").hasAuthority("CLASS_DELETE")
+						.requestMatchers("/api/classes/department-subjects")
+						.hasAnyAuthority("TEACHER_VIEW", "CLASS_VIEW")
+						.requestMatchers("/api/classes/teachers/{teacherId}/subjects").hasAuthority("TEACHER_VIEW")
+						.requestMatchers("/api/classes/teachers/register-subjects").hasAuthority("TEACHER_REGISTER")
+						.requestMatchers("/api/classes/assign-classes").hasAuthority("CLASS_ASSIGN")
+						.requestMatchers("/api/classes/schedules/generate").hasAuthority("SCHEDULE_CREATE")
+						.requestMatchers("/api/classes/create/schedules").hasAuthority("CLASS_CREATE")
+						.requestMatchers("/api/classes/update/schedules/**").hasAuthority("CLASS_UPDATE")
+						.requestMatchers("/api/classes/delete/schedules/**").hasAuthority("CLASS_DELETE")
+						.requestMatchers("/api/classes/schedules/week")
+						.hasAnyAuthority("CLASS_VIEW", "TEACHER_VIEW", "STUDENT_VIEW")
+						.requestMatchers("/api/classes/schedules/day")
+						.hasAnyAuthority("CLASS_VIEW", "TEACHER_VIEW", "STUDENT_VIEW")
+						.requestMatchers("/api/classes/schedules/class/**").hasAuthority("CLASS_VIEW")
 						.requestMatchers("/api/subjects/**").hasAuthority("SUBJECT_VIEW")
 						.requestMatchers("/api/subjects/create").hasAuthority("SUBJECT_CREATE")
 						.requestMatchers("/api/subjects/update/**").hasAuthority("SUBJECT_UPDATE")
@@ -64,10 +74,6 @@ public class SecurityConfig {
 						.requestMatchers("/api/grades/create").hasAuthority("GRADE_CREATE")
 						.requestMatchers("/api/grades/update/**").hasAuthority("GRADE_UPDATE")
 						.requestMatchers("/api/grades/delete/**").hasAuthority("GRADE_DELETE")
-						.requestMatchers("/api/schedules/**").hasAuthority("SCHEDULE_VIEW")
-						.requestMatchers("/api/schedules/create").hasAuthority("SCHEDULE_CREATE")
-						.requestMatchers("/api/schedules/update/**").hasAuthority("SCHEDULE_UPDATE")
-						.requestMatchers("/api/schedules/delete/**").hasAuthority("SCHEDULE_DELETE")
 						.requestMatchers("/api/notifications/**").hasAuthority("NOTIFICATION_VIEW")
 						.requestMatchers("/api/notifications/create").hasAuthority("NOTIFICATION_CREATE")
 						.requestMatchers("/api/profile/**").hasAuthority("PROFILE_VIEW")
@@ -81,7 +87,9 @@ public class SecurityConfig {
 						.requestMatchers("/admin/permissions/{id}").hasAuthority("PERMISSION_DELETE")
 						.requestMatchers("/admin/permissions/assign").hasAuthority("PERMISSION_ASSIGN")
 						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
-						.requestMatchers("/api/classes/registration/**").hasAuthority("STUDENT_REGISTER").anyRequest()
+						.requestMatchers("/api/classes/registration/**").hasAuthority("STUDENT_REGISTER")
+						.requestMatchers("/api/classes/import/**").hasAuthority("CLASS_CREATE")
+						.requestMatchers("/api/classes/data-generator**").hasAuthority("CLASS_CREATE").anyRequest()
 						.authenticated());
 
 		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -94,7 +102,7 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(List.of("http://localhost:3000"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("*")); // Cho phép tất cả header
+		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
