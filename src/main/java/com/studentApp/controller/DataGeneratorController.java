@@ -25,10 +25,4 @@ public class DataGeneratorController {
 		return ResponseEntity.ok(Map.of("status", "success", "message", "Sample data generated successfully"));
 	}
 
-	@PostMapping("/clear-data")
-	@PreAuthorize("hasAuthority('CLASS_CREATE')")
-	public ResponseEntity<Map<String, String>> clearData() {
-		dataGeneratorService.clearData();
-		return ResponseEntity.ok(Map.of("status", "success", "message", "All data cleared successfully"));
-	}
 }

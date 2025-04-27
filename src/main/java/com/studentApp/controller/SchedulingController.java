@@ -70,13 +70,6 @@ public class SchedulingController {
 		return ResponseEntity.ok(Map.of("status", "success"));
 	}
 
-	@PostMapping("/create/schedules")
-	@PreAuthorize("hasAuthority('CLASS_CREATE')")
-	public ResponseEntity<ScheduleResponse> addSchedule(@RequestBody ScheduleResponse scheduleResponse) {
-		ScheduleResponse createdSchedule = schedulingService.addSchedule(scheduleResponse);
-		return ResponseEntity.ok(createdSchedule);
-	}
-
 	@PutMapping("/update/schedules/{id}")
 	@PreAuthorize("hasAuthority('CLASS_UPDATE')")
 	public ResponseEntity<ScheduleResponse> updateSchedule(@PathVariable Long id,
@@ -93,7 +86,7 @@ public class SchedulingController {
 	}
 
 	@GetMapping("/schedules/week")
-	@PreAuthorize("hasAnyAuthority('CLASS_VIEW', 'TEACHER_VIEW', 'STUDENT_VIEW')")
+	@PreAuthorize("hasAnyAuthority('CLASS_VIEW')")
 	public ResponseEntity<List<ScheduleResponse>> getScheduleByWeek(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -101,7 +94,7 @@ public class SchedulingController {
 	}
 
 	@GetMapping("/schedules/day")
-	@PreAuthorize("hasAnyAuthority('CLASS_VIEW', 'TEACHER_VIEW', 'STUDENT_VIEW')")
+	@PreAuthorize("hasAnyAuthority('CLASS_VIEW')")
 	public ResponseEntity<List<ScheduleResponse>> getScheduleByDay(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		return ResponseEntity.ok(schedulingService.getScheduleByDay(date));
