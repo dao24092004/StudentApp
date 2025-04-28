@@ -1,6 +1,7 @@
 package com.studentApp.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,7 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
 	@Query("SELECT c FROM Class c WHERE c.classGroup.semester.id = :semesterId AND c.teacher IS NULL")
 	List<Class> findUnassignedBySemesterId(@Param("semesterId") Long semesterId);
+
+	Optional<Class> findByClassCode(String classCode);
+
 }

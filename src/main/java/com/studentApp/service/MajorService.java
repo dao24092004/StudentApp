@@ -1,63 +1,64 @@
 package com.studentApp.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.studentApp.dto.request.MajorCreationRequest;
-import com.studentApp.dto.response.MajorResponse;
+import com.studentApp.dto.request.MajorRequestDTO;
+import com.studentApp.dto.response.MajorResponseDTO;
+import com.studentApp.entity.Curriculum;
 import com.studentApp.entity.Department;
 import com.studentApp.entity.Major;
-import com.studentApp.enums.ErrorCode;
-import com.studentApp.exception.AppException;
+import com.studentApp.repository.CurriculumRepository;
 import com.studentApp.repository.DepartmentRepository;
 import com.studentApp.repository.MajorRepository;
 
 @Service
 public class MajorService {
-
 	@Autowired
 	private MajorRepository majorRepository;
-
 	@Autowired
 	private DepartmentRepository departmentRepository;
+	@Autowired
+	private CurriculumRepository curriculumRepository;
 
-	public MajorResponse createMajor(MajorCreationRequest request) {
-		if (majorRepository.findByMajorCode(request.getMajorCode()) != null) {
-			throw new AppException(ErrorCode.MAJOR_CODE_ALREADY_EXISTS);
-		}
-
-		Department department = departmentRepository.findByDeptName(request.getDeptName())
-				.orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
-
+	@Transactional
+	public MajorResponseDTO createMajor(MajorRequestDTO dto) {
 		Major major = new Major();
-		major.setMajorCode(request.getMajorCode());
-		major.setMajorName(request.getMajorName());
+		major.setMajorCode(dto.getMajorCode());
+		major.setMajorName(dto.getMajorName());
+		Department department = departmentRepository.findByDeptName(dto.getDeptName())
+				.orElseThrow(() -> new RuntimeException("Department not found: " + dto.getDeptName()));
 		major.setDeptId(department.getId());
-		major.setDescription(request.getDescription());
+		Curriculum curriculum = curriculumRepository.findByCurriculumName(dto.getCurriculumName())
+				.orElseThrow(() -> new RuntimeException("Curriculum not found: " + dto.getCurriculumName()));
+		major.setCurriculum(curriculum);
+		major.setDescription(dto.getDescription());
 		major.setCreatedAt(LocalDateTime.now());
 		major.setUpdatedAt(LocalDateTime.now());
-
 		major = majorRepository.save(major);
-		return toMajorResponse(major);
+		return mapToMajorResponseDTO(major);
 	}
 
-	private MajorResponse toMajorResponse(Major major) {
-		MajorResponse response = new MajorResponse();
-		response.setId(major.getId());
-		response.setMajorCode(major.getMajorCode());
-		response.setMajorName(major.getMajorName());
-		response.setDeptId(major.getDeptId());
+	public List<MajorResponseDTO> getAllMajors() {
+		return majorRepository.findAll().stream().map(this::mapToMajorResponseDTO).collect(Collectors.toList());
+	}
+
+	private MajorResponseDTO mapToMajorResponseDTO(Major major) {
+		MajorResponseDTO dto = new MajorResponseDTO();
+		dto.setMajorCode(major.getMajorCode());
+		dto.setMajorName(major.getMajorName());
 		Department department = departmentRepository.findById(major.getDeptId())
-				.orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
-		response.setDeptName(department.getDeptName());
-		if (major.getCurriculum() != null) {
-			response.setCurriculumName(major.getCurriculum().getCurriculumName());
-		}
-		response.setDescription(major.getDescription());
-		response.setCreatedAt(major.getCreatedAt());
-		response.setUpdatedAt(major.getUpdatedAt());
-		return response;
+				.orElseThrow(() -> new RuntimeException("Department not found: " + major.getDeptId()));
+		dto.setDeptName(department.getDeptName());
+		dto.setCurriculumName(major.getCurriculum().getCurriculumName());
+		dto.setDescription(major.getDescription());
+		dto.setCreatedAt(major.getCreatedAt());
+		dto.setUpdatedAt(major.getUpdatedAt());
+		return dto;
 	}
 }

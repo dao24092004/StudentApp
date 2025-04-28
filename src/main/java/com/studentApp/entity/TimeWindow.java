@@ -19,7 +19,7 @@ public class TimeWindow {
 
 	@Id
 	@Column(name = "id_class")
-	private Integer idClass;
+	private Long idClass; // Changed from Integer to Long
 
 	@Id
 	@Column(name = "day_of_week")

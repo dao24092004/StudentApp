@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class TimeWindowId implements Serializable {
-	private Integer idClass;
+	private Long idClass; // Changed from Integer to Long
 	private String dayOfWeek;
 	private Integer slot;
 }
