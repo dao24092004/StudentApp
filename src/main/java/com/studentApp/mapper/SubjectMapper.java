@@ -26,10 +26,6 @@ public class SubjectMapper {
 		dto.setCredits(subject.getCredits());
 		dto.setDescription(subject.getDescription());
 
-		if (subject.getSemester() != null) {
-			dto.setSemesterName(subject.getSemester().getStartDate() + " - " + subject.getSemester().getEndDate());
-		}
-
 		Department department = departmentRepository.findById(subject.getDeptId())
 				.orElseThrow(() -> new RuntimeException("Department not found with id: " + subject.getDeptId()));
 		dto.setDeptName(department.getDeptName());

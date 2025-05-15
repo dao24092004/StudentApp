@@ -24,8 +24,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	// Danh sách các đường dẫn không cần kiểm tra JWT
-	private static final List<String> EXCLUDED_PATHS = Arrays.asList("/auth/**", "/swagger-ui.html", "/swagger-ui/**",
-			"/api-docs/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**");
+	private static final List<String> EXCLUDED_PATHS = Arrays.asList("/auth/login", "/auth/register",
+			"/auth/refresh-token", "/auth/logout", "/swagger-ui.html", "/swagger-ui/**", "/api-docs/**",
+			"/v3/api-docs/**", "/swagger-resources/**", "/webjars/**");
 
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
@@ -42,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		try {
 			String path = request.getRequestURI();
 			// Bỏ qua các đường dẫn không cần kiểm tra JWT
-			if (EXCLUDED_PATHS.stream().anyMatch(excludedPath -> path.startsWith(excludedPath.replace("/**", "")))) {
+			if (EXCLUDED_PATHS.stream().anyMatch(path::equals)) {
 				System.out.println("Bypassing JWT filter for path: " + path);
 				filterChain.doFilter(request, response);
 				return;

@@ -29,17 +29,17 @@ CREATE TABLE tbl_major (
     CONSTRAINT fk_major_curriculum FOREIGN KEY (curriculum_id) REFERENCES tbl_curriculum(id) -- Liên kết với tbl_curriculum
 );
 
--- Bảng tbl_class_group: Lưu thông tin nhóm lớp theo ngành (CNPM, TMĐT, ANM)
+-- Sửa bảng tbl_class_group
 CREATE TABLE tbl_class_group (
     id SERIAL PRIMARY KEY,
-    group_code VARCHAR(20) NOT NULL, -- Mã nhóm lớp (ví dụ: CNPM1, TMĐT1)
-    group_name VARCHAR(100) NOT NULL, -- Tên nhóm lớp
-    major_id INTEGER NOT NULL, -- ID của ngành học (liên kết với tbl_major)
-    shift VARCHAR(10) CHECK (shift IN ('Morning', 'Afternoon')), -- Ca học cố định: Morning (sáng), Afternoon (chiều)
-    semester_id INTEGER NOT NULL, -- ID của kỳ học (liên kết với tbl_semester)
-    CONSTRAINT uk_class_group_code UNIQUE (group_code), -- Ràng buộc: mã nhóm lớp là duy nhất
-    CONSTRAINT fk_class_group_major FOREIGN KEY (major_id) REFERENCES tbl_major(id), -- Khóa ngoại tới tbl_major
-    CONSTRAINT fk_class_group_semester FOREIGN KEY (semester_id) REFERENCES tbl_semester(id) -- Khóa ngoại tới tbl_semester
+    group_code VARCHAR(20) NOT NULL,
+    group_name VARCHAR(100) NOT NULL,
+    major_id INTEGER NOT NULL,
+    shift VARCHAR(10) NOT NULL CHECK (shift IN ('Morning', 'Afternoon')),
+    semester_id INTEGER NOT NULL,
+    CONSTRAINT uk_class_group_code UNIQUE (group_code),
+    CONSTRAINT fk_class_group_major FOREIGN KEY (major_id) REFERENCES tbl_major(id),
+    CONSTRAINT fk_class_group_semester FOREIGN KEY (semester_id) REFERENCES tbl_semester(id)
 );
 -- Bảng tbl_student: Lưu thông tin sinh viên
 CREATE TABLE tbl_student (

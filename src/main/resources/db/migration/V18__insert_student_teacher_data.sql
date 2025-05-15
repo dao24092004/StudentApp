@@ -1,29 +1,142 @@
--- Thêm dữ liệu cho tbl_semester
-INSERT INTO tbl_semester (start_date, end_date) VALUES
-('2023-09-01', '2024-01-15'),
-('2024-02-01', '2024-06-15');
+
 
 -- Nhập dữ liệu mẫu cho tbl_class_group
-INSERT INTO tbl_class_group (id, group_code, group_name, major_id, shift, semester_id) VALUES
-(1, 'CNPM1', 'Công nghệ Phần mềm 1', 1, 'Morning', 1),
-(2, 'CNPM2', 'Công nghệ Phần mềm 2', 1, 'Morning', 1),
-(3, 'CNPM3', 'Công nghệ Phần mềm 3', 1, 'Morning', 1),
-(4, 'TMĐT1', 'Thương mại Điện tử 1', 2, 'Afternoon', 1),
-(5, 'TMĐT2', 'Thương mại Điện tử 2', 2, 'Afternoon', 1),
-(6, 'ANM1', 'An ninh Mạng 1', 3, 'Afternoon', 1);
+INSERT INTO tbl_class_group (group_code, group_name, major_id, shift, semester_id) VALUES
+('CNPM1', 'Công nghệ Phần mềm 1', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('CNPM2', 'Công nghệ Phần mềm 2', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('CNPM3', 'Công nghệ Phần mềm 3', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('CNPM4', 'Công nghệ Phần mềm 4', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('TMĐT1', 'Thương mại Điện tử 1', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('TMĐT2', 'Thương mại Điện tử 2', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('ANM1', 'An ninh Mạng 1', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('ANM2', 'An ninh Mạng 2', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('KTQT1', 'Kinh tế Quốc tế 1', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('KTQT2', 'Kinh tế Quốc tế 2', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('KTQT3', 'Kinh tế Quốc tế 3', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('CKOT1', 'Cơ khí Ô tô 1', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('CKOT2', 'Cơ khí Ô tô 2', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('CKOT3', 'Cơ khí Ô tô 3', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2026-07-01')),
+('KTDT1', 'Kỹ thuật Điện tử 1', (SELECT id FROM tbl_major WHERE major_code = 'KTDT-DT'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2025-09-01')),
+('KTDT2', 'Kỹ thuật Điện tử 2', (SELECT id FROM tbl_major WHERE major_code = 'KTDT-DT'), 'Afternoon', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('CK1', 'Cơ khí 1', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2026-02-01')),
+('TD1', 'Thể dục 1', (SELECT id FROM tbl_major WHERE major_code = 'TD-TD'), 'Morning', (SELECT id FROM tbl_semester WHERE start_date = '2026-07-01'))
+ON CONFLICT (group_code) DO NOTHING;
 
--- Nhập dữ liệu mẫu cho tbl_student (Bổ sung sinh viên cho tất cả nhóm lớp)
 INSERT INTO tbl_student (id, user_id, student_code, student_name, date_of_birth, gender, address, phone_number, major_id, class_group_id) VALUES
-(1, 4, 'SV001', 'Nguyen Van A', '2002-05-15', 'Male', 'Hà Nội', '0912345678', 1, 1), -- CNPM1
-(2, 5, 'SV002', 'Tran Thi B', '2002-07-20', 'Female', 'TP.HCM', '0912345679', 1, 1), -- CNPM1
-(3, 6, 'SV003', 'Le Van C', '2002-08-10', 'Male', 'Hà Nội', '0912345680', 1, 2), -- CNPM2
-(4, 7, 'SV004', 'Pham Thi D', '2002-09-15', 'Female', 'TP.HCM', '0912345681', 1, 3), -- CNPM3
-(5, 8, 'SV005', 'Nguyen Van E', '2002-10-20', 'Male', 'Hà Nội', '0912345682', 2, 4), -- TMĐT1
-(6, 9, 'SV006', 'Tran Thi F', '2002-11-25', 'Female', 'TP.HCM', '0912345683', 2, 5), -- TMĐT2
-(7, 10, 'SV007', 'Le Van G', '2002-12-30', 'Male', 'Hà Nội', '0912345684', 3, 6); -- ANM1
+(1, 4, 'SV001', 'Nguyen Van A', '2002-05-15', 'Male', 'Hà Nội', '0912345678', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(2, 5, 'SV002', 'Tran Thi B', '2002-07-20', 'Female', 'TP.HCM', '0912345679', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(3, 6, 'SV003', 'Le Van C', '2002-08-10', 'Male', 'Hà Nội', '0912345680', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 2),
+(4, 7, 'SV004', 'Pham Thi D', '2002-09-15', 'Female', 'TP.HCM', '0912345681', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 3),
+(5, 8, 'SV005', 'Nguyen Van E', '2002-10-20', 'Male', 'Hà Nội', '0912345682', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 4),
+(6, 9, 'SV006', 'Tran Thi F', '2002-11-25', 'Female', 'TP.HCM', '0912345683', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 5),
+(7, 10, 'SV007', 'Le Van G', '2002-12-30', 'Male', 'Hà Nội', '0912345684', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 6),
+(8, 26, 'SV008', 'Nguyen Thi A', '2003-01-05', 'Female', 'Đà Nẵng', '0912345685', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(9, 27, 'SV009', 'Tran Van B', '2003-02-10', 'Male', 'Hà Nội', '0912345686', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(10, 28, 'SV010', 'Le Thi C', '2003-03-15', 'Female', 'TP.HCM', '0912345687', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 2),
+(11, 29, 'SV011', 'Pham Van D', '2003-04-20', 'Male', 'Đà Nẵng', '0912345688', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 2),
+(12, 30, 'SV012', 'Hoang Thi E', '2003-05-25', 'Female', 'Hà Nội', '0912345689', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 3),
+(13, 31, 'SV013', 'Do Van F', '2003-06-30', 'Male', 'TP.HCM', '0912345690', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 3),
+(14, 32, 'SV014', 'Bui Thi G', '2003-07-05', 'Female', 'Đà Nẵng', '0912345691', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 4),
+(15, 33, 'SV015', 'Ngo Thanh H', '2003-08-10', 'Male', 'Hà Nội', '0912345692', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 4),
+(16, 34, 'SV016', 'Vu Thi I', '2003-09-15', 'Female', 'TP.HCM', '0912345693', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 5),
+(17, 35, 'SV017', 'Dang Van J', '2003-10-20', 'Male', 'Đà Nẵng', '0912345694', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 5),
+(18, 36, 'SV018', 'Ly Thi K', '2003-11-25', 'Female', 'Hà Nội', '0912345695', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 6),
+(19, 37, 'SV019', 'Huynh Van L', '2003-12-30', 'Male', 'TP.HCM', '0912345696', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 6),
+(20, 38, 'SV020', 'Tran Thi M', '2004-01-05', 'Female', 'Đà Nẵng', '0912345697', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(21, 39, 'SV021', 'Nguyen Van N', '2004-02-10', 'Male', 'Hà Nội', '0912345698', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(22, 40, 'SV022', 'Le Thi O', '2004-03-15', 'Female', 'TP.HCM', '0912345699', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 2),
+(23, 41, 'SV023', 'Pham Van P', '2004-04-20', 'Male', 'Đà Nẵng', '0912345700', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 2),
+(24, 42, 'SV024', 'Hoang Thi Q', '2004-05-25', 'Female', 'Hà Nội', '0912345701', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 3),
+(25, 43, 'SV025', 'Do Van R', '2004-06-30', 'Male', 'TP.HCM', '0912345702', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 3),
+(26, 44, 'SV026', 'Bui Thi S', '2004-07-05', 'Female', 'Đà Nẵng', '0912345703', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 4),
+(27, 45, 'SV027', 'Ngo Thanh T', '2004-08-10', 'Male', 'Hà Nội', '0912345704', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 4),
+(28, 46, 'SV028', 'Vu Thi U', '2004-09-15', 'Female', 'TP.HCM', '0912345705', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 5),
+(29, 47, 'SV029', 'Dang Van V', '2004-10-20', 'Male', 'Đà Nẵng', '0912345706', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 5),
+(30, 48, 'SV030', 'Ly Thi W', '2004-11-25', 'Female', 'Hà Nội', '0912345707', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 6),
+(31, 49, 'SV031', 'Huynh Van X', '2004-12-30', 'Male', 'TP.HCM', '0912345708', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 6),
+(32, 50, 'SV032', 'Tran Thi Y', '2005-01-05', 'Female', 'Đà Nẵng', '0912345709', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 7),
+(33, 51, 'SV033', 'Nguyen Van Z', '2005-02-10', 'Male', 'Hà Nội', '0912345710', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 7),
+(34, 52, 'SV034', 'Le Thi AA', '2005-03-15', 'Female', 'TP.HCM', '0912345711', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 8),
+(35, 53, 'SV035', 'Pham Van AB', '2005-04-20', 'Male', 'Đà Nẵng', '0912345712', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 8),
+(36, 54, 'SV036', 'Hoang Thi AC', '2005-05-25', 'Female', 'Hà Nội', '0912345713', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 9),
+(37, 55, 'SV037', 'Do Van AD', '2005-06-30', 'Male', 'TP.HCM', '0912345714', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 9),
+(38, 56, 'SV038', 'Bui Thi AE', '2005-07-05', 'Female', 'Đà Nẵng', '0912345715', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 10),
+(39, 57, 'SV039', 'Ngo Thanh AF', '2005-08-10', 'Male', 'Hà Nội', '0912345716', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 10),
+(40, 58, 'SV040', 'Vu Thi AG', '2005-09-15', 'Female', 'TP.HCM', '0912345717', (SELECT id FROM tbl_major WHERE major_code = 'KTDT-DT'), 11),
+(41, 59, 'SV041', 'Dang Van AH', '2005-10-20', 'Male', 'Đà Nẵng', '0912345718', (SELECT id FROM tbl_major WHERE major_code = 'KTDT-DT'), 11),
+(42, 60, 'SV042', 'Ly Thi AI', '2005-11-25', 'Female', 'Hà Nội', '0912345719', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 1),
+(43, 61, 'SV043', 'Huynh Van AJ', '2005-12-30', 'Male', 'TP.HCM', '0912345720', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 2),
+(44, 62, 'SV044', 'Tran Thi AK', '2006-01-05', 'Female', 'Đà Nẵng', '0912345721', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 4),
+(45, 63, 'SV045', 'Nguyen Van AL', '2006-02-10', 'Male', 'Hà Nội', '0912345722', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-ANM'), 6),
+(46, 64, 'SV046', 'Le Thi AM', '2006-03-15', 'Female', 'TP.HCM', '0912345723', (SELECT id FROM tbl_major WHERE major_code = 'KT-KTQT'), 7),
+(47, 65, 'SV047', 'Pham Van AN', '2006-04-20', 'Male', 'Đà Nẵng', '0912345724', (SELECT id FROM tbl_major WHERE major_code = 'CK-OTO'), 9),
+(48, 66, 'SV048', 'Hoang Thi AO', '2006-05-25', 'Female', 'Hà Nội', '0912345725', (SELECT id FROM tbl_major WHERE major_code = 'KTDT-DT'), 11),
+(49, 67, 'SV049', 'Do Van AP', '2006-06-30', 'Male', 'TP.HCM', '0912345726', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-CNPM'), 3),
+(50, 68, 'SV050', 'Bui Thi AQ', '2006-07-05', 'Female', 'Đà Nẵng', '0912345727', (SELECT id FROM tbl_major WHERE major_code = 'CNTT-TMĐT'), 5)
+ON CONFLICT (student_code) DO NOTHING;
 
--- Nhập dữ liệu mẫu cho tbl_teacher
 INSERT INTO tbl_teacher (id, user_id, teacher_code, teacher_name, date_of_birth, gender, address, phone_number, email, dept_id) VALUES
-(1, 2, 'GV001', 'Nguyen Van B', '1980-03-10', 'Male', 'Hà Nội', '0912345685', 'teacher1@university.edu.vn', 1), -- CNTT
-(2, 3, 'GV002', 'Tran Thi C', '1985-06-25', 'Female', 'TP.HCM', '0912345686', 'teacher2@university.edu.vn', 2); -- Chính trị
+(1, 2, 'GV001', 'Nguyen Van B', '1980-03-10', 'Male', 'Hà Nội', '0912345685', 'teacher1@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CNTT')),
+(2, 3, 'GV002', 'Tran Thi C', '1985-06-25', 'Female', 'TP.HCM', '0912345686', 'teacher2@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CT')),
+(3, 13, 'GV003', 'Nguyen Van B', '1978-09-15', 'Male', 'Đà Nẵng', '0912345687', 'nguyenvanb@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CNTT')),
+(4, 14, 'GV004', 'Tran Thi C', '1982-12-20', 'Female', 'Hà Nội', '0912345688', 'tranthic@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CNTT')),
+(5, 15, 'GV005', 'Le Van D', '1975-05-30', 'Male', 'TP.HCM', '0912345689', 'levand@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CT')),
+(6, 16, 'GV006', 'Pham Thi E', '1988-03-10', 'Female', 'Đà Nẵng', '0912345690', 'phamthie@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CT')),
+(7, 17, 'GV007', 'Hoang Minh F', '1980-07-25', 'Male', 'Hà Nội', '0912345691', 'hoangminhf@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'KTDT')),
+(8, 18, 'GV008', 'Do Thi G', '1983-11-15', 'Female', 'TP.HCM', '0912345692', 'dothig@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'KTDT')),
+(9, 19, 'GV009', 'Bui Trung H', '1979-02-20', 'Male', 'Đà Nẵng', '0912345693', 'buitrungh@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CNTT')),
+(10, 20, 'GV010', 'Ngo Thi I', '1986-08-05', 'Female', 'Hà Nội', '0912345694', 'ngothii@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CNTT')),
+(11, 21, 'GV011', 'Vu Van J', '1981-04-10', 'Male', 'TP.HCM', '0912345695', 'vuvanj@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CT')),
+(12, 22, 'GV012', 'Dang Thi K', '1984-06-15', 'Female', 'Đà Nẵng', '0912345696', 'dangthik@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'KT')),
+(13, 23, 'GV013', 'Ly Van L', '1977-09-20', 'Male', 'Hà Nội', '0912345697', 'lyvanl@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'KT')),
+(14, 24, 'GV014', 'Huynh Thi M', '1989-01-25', 'Female', 'TP.HCM', '0912345698', 'huynhthim@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CK')),
+(15, 25, 'GV015', 'Tran Van N', '1982-03-30', 'Male', 'Đà Nẵng', '0912345699', 'tranvann@university.edu.vn', (SELECT id FROM tbl_department WHERE dept_code = 'CK'))
+ON CONFLICT (teacher_code) DO NOTHING;
 
+INSERT INTO tbl_teacher_preference (teacher_id, week, day_of_week, slot) VALUES
+(1, 1, 'Mon', 1), (1, 1, 'Mon', 2), (1, 1, 'Mon', 3), (1, 1, 'Mon', 4),
+(1, 1, 'Wed', 1), (1, 1, 'Wed', 2), (1, 1, 'Wed', 3), (1, 1, 'Wed', 4),
+(1, 1, 'Sat', 1), (1, 1, 'Sat', 2), (1, 1, 'Sun', 1), (1, 1, 'Sun', 2),
+(2, 1, 'Tue', 1), (2, 1, 'Tue', 2), (2, 1, 'Tue', 3), (2, 1, 'Tue', 4),
+(2, 1, 'Thu', 1), (2, 1, 'Thu', 2), (2, 1, 'Thu', 3), (2, 1, 'Thu', 4),
+(2, 1, 'Sat', 1), (2, 1, 'Sat', 2), (2, 1, 'Sun', 1), (2, 1, 'Sun', 2),
+(3, 1, 'Mon', 5), (3, 1, 'Mon', 6), (3, 1, 'Mon', 7), (3, 1, 'Mon', 8),
+(3, 1, 'Fri', 5), (3, 1, 'Fri', 6), (3, 1, 'Fri', 7), (3, 1, 'Fri', 8),
+(3, 1, 'Sat', 3), (3, 1, 'Sat', 4), (3, 1, 'Sun', 3), (3, 1, 'Sun', 4),
+(4, 1, 'Wed', 1), (4, 1, 'Wed', 2), (4, 1, 'Wed', 3), (4, 1, 'Wed', 4),
+(4, 1, 'Fri', 1), (4, 1, 'Fri', 2), (4, 1, 'Fri', 3), (4, 1, 'Fri', 4),
+(4, 1, 'Sat', 1), (4, 1, 'Sat', 2), (4, 1, 'Sun', 1), (4, 1, 'Sun', 2),
+(5, 1, 'Tue', 5), (5, 1, 'Tue', 6), (5, 1, 'Tue', 7), (5, 1, 'Tue', 8),
+(5, 1, 'Thu', 5), (5, 1, 'Thu', 6), (5, 1, 'Thu', 7), (5, 1, 'Thu', 8),
+(5, 1, 'Sat', 3), (5, 1, 'Sat', 4), (5, 1, 'Sun', 3), (5, 1, 'Sun', 4),
+(6, 1, 'Mon', 5), (6, 1, 'Mon', 6), (6, 1, 'Mon', 7), (6, 1, 'Mon', 8),
+(6, 1, 'Wed', 5), (6, 1, 'Wed', 6), (6, 1, 'Wed', 7), (6, 1, 'Wed', 8),
+(6, 1, 'Sat', 5), (6, 1, 'Sat', 6), (6, 1, 'Sun', 5), (6, 1, 'Sun', 6),
+(7, 1, 'Tue', 1), (7, 1, 'Tue', 2), (7, 1, 'Tue', 3), (7, 1, 'Tue', 4),
+(7, 1, 'Thu', 1), (7, 1, 'Thu', 2), (7, 1, 'Thu', 3), (7, 1, 'Thu', 4),
+(7, 1, 'Sat', 1), (7, 1, 'Sat', 2), (7, 1, 'Sun', 1), (7, 1, 'Sun', 2),
+(8, 1, 'Mon', 1), (8, 1, 'Mon', 2), (8, 1, 'Mon', 3), (8, 1, 'Mon', 4),
+(8, 1, 'Fri', 1), (8, 1, 'Fri', 2), (8, 1, 'Fri', 3), (8, 1, 'Fri', 4),
+(8, 1, 'Sat', 1), (8, 1, 'Sat', 2), (8, 1, 'Sun', 1), (8, 1, 'Sun', 2),
+(9, 1, 'Wed', 1), (9, 1, 'Wed', 2), (9, 1, 'Wed', 3), (9, 1, 'Wed', 4),
+(9, 1, 'Fri', 1), (9, 1, 'Fri', 2), (9, 1, 'Fri', 3), (9, 1, 'Fri', 4),
+(9, 1, 'Sat', 1), (9, 1, 'Sat', 2), (9, 1, 'Sun', 1), (9, 1, 'Sun', 2),
+(10, 1, 'Mon', 5), (10, 1, 'Mon', 6), (10, 1, 'Mon', 7), (10, 1, 'Mon', 8),
+(10, 1, 'Thu', 5), (10, 1, 'Thu', 6), (10, 1, 'Thu', 7), (10, 1, 'Thu', 8),
+(10, 1, 'Sat', 3), (10, 1, 'Sat', 4), (10, 1, 'Sun', 3), (10, 1, 'Sun', 4),
+(11, 1, 'Mon', 5), (11, 1, 'Mon', 6), (11, 1, 'Mon', 7), (11, 1, 'Mon', 8),
+(11, 1, 'Wed', 5), (11, 1, 'Wed', 6), (11, 1, 'Wed', 7), (11, 1, 'Wed', 8),
+(11, 1, 'Sat', 5), (11, 1, 'Sat', 6), (11, 1, 'Sun', 5), (11, 1, 'Sun', 6),
+(12, 1, 'Tue', 1), (12, 1, 'Tue', 2), (12, 1, 'Tue', 3), (12, 1, 'Tue', 4),
+(12, 1, 'Thu', 1), (12, 1, 'Thu', 2), (12, 1, 'Thu', 3), (12, 1, 'Thu', 4),
+(12, 1, 'Sat', 1), (12, 1, 'Sat', 2), (12, 1, 'Sun', 1), (12, 1, 'Sun', 2),
+(13, 1, 'Mon', 1), (13, 1, 'Mon', 2), (13, 1, 'Mon', 3), (13, 1, 'Mon', 4),
+(13, 1, 'Fri', 1), (13, 1, 'Fri', 2), (13, 1, 'Fri', 3), (13, 1, 'Fri', 4),
+(13, 1, 'Sat', 1), (13, 1, 'Sat', 2), (13, 1, 'Sun', 1), (13, 1, 'Sun', 2),
+(14, 1, 'Wed', 5), (14, 1, 'Wed', 6), (14, 1, 'Wed', 7), (14, 1, 'Wed', 8),
+(14, 1, 'Fri', 5), (14, 1, 'Fri', 6), (14, 1, 'Fri', 7), (14, 1, 'Fri', 8),
+(14, 1, 'Sat', 3), (14, 1, 'Sat', 4), (14, 1, 'Sun', 3), (14, 1, 'Sun', 4),
+(15, 1, 'Tue', 5), (15, 1, 'Tue', 6), (15, 1, 'Tue', 7), (15, 1, 'Tue', 8),
+(15, 1, 'Thu', 5), (15, 1, 'Thu', 6), (15, 1, 'Thu', 7), (15, 1, 'Thu', 8),
+(15, 1, 'Sat', 3), (15, 1, 'Sat', 4), (15, 1, 'Sun', 3), (15, 1, 'Sun', 4)
+ON CONFLICT (teacher_id, week, day_of_week, slot) DO NOTHING;

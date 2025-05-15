@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GradeUpdateRequest {
-
-    private Double attendance_score;
-    private Double exam_score;
-    private Double final_score;
-    private String note;
+	private Long class_id; // Thêm class_id để xác định lớp học
+	private Double attendance_score;
+	private Double exam_score;
+	private Double final_score;
+	private String note;
 }

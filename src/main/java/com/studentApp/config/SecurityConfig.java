@@ -47,9 +47,14 @@ public class SecurityConfig {
 							response.getWriter()
 									.write("{\"code\": 401, \"message\": \"Unauthorized: Invalid or missing token.\"}");
 						}))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
-						.requestMatchers("/actuator/health").permitAll().requestMatchers("/api/users/**")
-						.hasAuthority("USER_VIEW").requestMatchers("/api/users/create").hasAuthority("USER_CREATE")
+				.authorizeHttpRequests(auth -> auth
+						// Chỉ cho phép các endpoint không cần xác thực
+						.requestMatchers("/auth/login", "/auth/register", "/auth/refresh-token", "/auth/logout")
+						.permitAll()
+						// Yêu cầu xác thực cho /auth/profile
+						.requestMatchers("/auth/profile").authenticated().requestMatchers("/actuator/health")
+						.permitAll().requestMatchers("/api/users/**").hasAuthority("USER_VIEW")
+						.requestMatchers("/api/users/create").hasAuthority("USER_CREATE")
 						.requestMatchers("/api/users/update/**").hasAuthority("USER_UPDATE")
 						.requestMatchers("/api/users/delete/**").hasAuthority("USER_DELETE")
 						.requestMatchers("/api/classes/department-subjects")
@@ -89,7 +94,8 @@ public class SecurityConfig {
 						.requestMatchers("/admin/permissions/revoke").hasAuthority("PERMISSION_REVOKE")
 						.requestMatchers("/api/classes/registration/**").hasAuthority("STUDENT_REGISTER")
 						.requestMatchers("/api/classes/import/**").hasAuthority("CLASS_CREATE")
-						.requestMatchers("/api/classes/data-generator**").hasAuthority("CLASS_CREATE").anyRequest()
+						.requestMatchers("/api/classes/data-generator**").hasAuthority("CLASS_CREATE")
+						.requestMatchers("/api/notifications/**").hasAuthority("CLASS_CREATE").anyRequest()
 						.authenticated());
 
 		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -100,7 +106,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("*")); // Cho phép tất cả nguồn trong môi trường phát triển
+		configuration.setAllowedOrigins(List.of("*"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);

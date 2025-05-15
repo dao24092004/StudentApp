@@ -64,4 +64,17 @@ public class Student {
 	@ManyToOne(optional = false, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "class_group_id", nullable = false)
 	private ClassGroup classGroup;
+
+	// Sửa các setter để kiểm tra null
+	public void setStudentName(String studentName) {
+		this.studentName = (studentName != null) ? studentName.trim() : null;
+	}
+
+	public void setAddress(String address) {
+		this.address = (address != null) ? address.trim() : null;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = (phoneNumber != null) ? phoneNumber.trim() : null;
+	}
 }

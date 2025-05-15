@@ -33,7 +33,6 @@ public class SubjectService {
 		subject.setCredits(dto.getCredits());
 		Semester semester = semesterRepository.findByStartDate(dto.getSemesterStartDate()).orElseThrow(
 				() -> new RuntimeException("Semester not found with start date: " + dto.getSemesterStartDate()));
-		subject.setSemester(semester);
 		Department department = departmentRepository.findByDeptName(dto.getDeptName())
 				.orElseThrow(() -> new RuntimeException("Department not found: " + dto.getDeptName()));
 		subject.setDeptId(department.getId());
@@ -51,7 +50,6 @@ public class SubjectService {
 		dto.setSubjectCode(subject.getSubjectCode());
 		dto.setSubjectName(subject.getSubjectName());
 		dto.setCredits(subject.getCredits());
-		dto.setSemesterStartDate(subject.getSemester().getStartDate());
 		Department department = departmentRepository.findById(subject.getDeptId())
 				.orElseThrow(() -> new RuntimeException("Department not found: " + subject.getDeptId()));
 		dto.setDeptName(department.getDeptName());

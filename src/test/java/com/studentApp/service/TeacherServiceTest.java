@@ -66,16 +66,18 @@ class TeacherServiceTest {
 		// Mock hành vi của teacherRepository.findByTeacherPhoneNumber
 		when(teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber())).thenReturn(Optional.empty());
 
-		// Mock hành vi của userRepository.findByEmail
+		// Mock hành vi của userRepository.findByEmail với user hiện có có role TEACHER
 		User existingUser = new User();
 		existingUser.setId(1L);
 		existingUser.setUsername("Nguyen Van A");
 		existingUser.setEmail("nguyenvana@example.com");
-		when(userRepository.findByEmail(request.getUserEmail())).thenReturn(Optional.of(existingUser));
-
-		// Mock hành vi của roleRepository.findByRoleName
 		Role teacherRole = new Role();
 		teacherRole.setRoleName("TEACHER");
+		existingUser.setRole(teacherRole);
+		when(userRepository.findByEmail(request.getUserEmail())).thenReturn(Optional.of(existingUser));
+
+		// Mock hành vi của roleRepository.findByRoleName (cho trường hợp tạo user mới,
+		// nhưng không cần thiết ở đây)
 		when(roleRepository.findByRoleName("TEACHER")).thenReturn(Optional.of(teacherRole));
 
 		// Mock hành vi của departmentRepository.findById
@@ -172,6 +174,6 @@ class TeacherServiceTest {
 
 		// Act & Assert: Kiểm tra ngoại lệ
 		AppException exception = assertThrows(AppException.class, () -> teacherService.createTeacher(request));
-		assertEquals(ErrorCode.TEACHER_NOT_FOUND, exception.getErrorCode());
+		assertEquals(ErrorCode.TEACHER_ALLREADY_EXISTS, exception.getErrorCode());
 	}
 }

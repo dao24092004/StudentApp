@@ -11,7 +11,8 @@ import com.studentApp.entity.Subject;
 
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
-	@Query("SELECT s FROM Subject s WHERE s.semester.id = :semesterId AND s.deptId = :deptId")
+	@Query("SELECT DISTINCT s FROM Subject s " + "JOIN CurriculumDetail cd ON cd.subject.id = s.id "
+			+ "WHERE cd.semester.id = :semesterId AND s.deptId = :deptId")
 	List<Subject> findBySemesterIdAndDeptId(@Param("semesterId") Long semesterId, @Param("deptId") Long deptId);
 
 	@Query("SELECT s FROM Subject s JOIN TeacherSubjectRegistration tsr ON s.id = tsr.subject.id "

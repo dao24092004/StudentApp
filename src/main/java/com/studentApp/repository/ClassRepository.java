@@ -11,10 +11,10 @@ import com.studentApp.entity.Class;
 
 public interface ClassRepository extends JpaRepository<Class, Long> {
 
-	@Query("SELECT c FROM Class c WHERE c.subject.semester.id = :semesterId AND c.teacher IS NOT NULL")
-	List<Class> findBySemesterIdAndTeacherIdIsNotNull(@Param("semesterId") Long semesterId);
+	List<Class> findBySemesterIdAndTeacherIsNotNull(Long semesterId);
 
-	@Query("SELECT c FROM Class c WHERE c.subject.semester.id = :semesterId AND c.teacher IS NULL")
+	@Query("SELECT c FROM Class c " + "JOIN CurriculumDetail cd ON cd.subject.id = c.subject.id "
+			+ "WHERE cd.semester.id = :semesterId AND c.teacher IS NULL")
 	List<Class> findBySemesterIdAndTeacherIdIsNull(@Param("semesterId") Long semesterId);
 
 	@Query("SELECT c FROM Class c WHERE c.classGroup.semester.id = :semesterId")

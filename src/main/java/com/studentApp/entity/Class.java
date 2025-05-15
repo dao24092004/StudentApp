@@ -4,12 +4,14 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Entity
@@ -26,13 +28,17 @@ public class Class {
 	@Column(name = "class_name", nullable = false, length = 100)
 	private String className;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "subject_id", nullable = false)
 	private Subject subject;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "teacher_id")
 	private Teacher teacher;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "semester_id", nullable = false)
+	private Semester semester;
 
 	@ManyToOne
 	@JoinColumn(name = "class_group_id", nullable = false)
@@ -44,6 +50,7 @@ public class Class {
 	@Column(name = "end_date")
 	private LocalDate endDate;
 
+	@Transient // Không ánh xạ vào cơ sở dữ liệu
 	private String classroom;
 
 	private String shift;

@@ -6,18 +6,27 @@ import com.studentApp.entity.Student;
 public class StudentMapper {
 
 	public static StudentResponse toStudentResponse(Student student) {
-		return StudentResponse.builder().studentCode(student.getStudentCode()).studentName(student.getStudentName())
-				.dateOfBirth(student.getDateOfBirth())
-				.userEmail(student.getUser() != null ? student.getUser().getEmail() : null)
-				.gender(student.getGender() != null ? student.getGender().name() : null).address(student.getAddress())
-				.phoneNumber(student.getPhoneNumber())
-				.studentEmail(generateEmail(student.getStudentName(), student.getStudentCode()))
-				.majorId(student.getMajor() != null ? String.valueOf(student.getMajor().getId()) : null)
-				.classGroupId(student.getClassGroup() != null ? String.valueOf(student.getClassGroup().getId()) : null)
-				.userId(student.getUser() != null ? String.valueOf(student.getUser().getId()) : null).build();
+		if (student == null) {
+			return null;
+		}
+
+		StudentResponse response = new StudentResponse();
+		response.setStudentCode(student.getStudentCode());
+		response.setStudentName(student.getStudentName());
+		response.setMajorName(student.getMajor() != null ? student.getMajor().getMajorName() : null);
+		response.setUserEmail(student.getUser() != null ? student.getUser().getEmail() : null);
+		response.setDateOfBirth(student.getDateOfBirth()); // Đảm bảo ánh xạ
+		response.setGender(student.getGender() != null ? student.getGender().toString() : null);
+		response.setAddress(student.getAddress());
+		response.setPhoneNumber(student.getPhoneNumber());
+		response.setStudentEmail(generateEmail(student.getStudentName(), student.getStudentCode())); // Thêm logic sinh
+		return response;
 	}
 
 	private static String generateEmail(String name, String studentCode) {
+		if (name == null || studentCode == null) {
+			return null;
+		}
 		String normalized = name.trim().toLowerCase().replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
 				.replaceAll("[èéẹẻẽêềếệểễ]", "e").replaceAll("[ìíịỉĩ]", "i").replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
 				.replaceAll("[ùúụủũưừứựửữ]", "u").replaceAll("[ỳýỵỷỹ]", "y").replaceAll("đ", "d")
