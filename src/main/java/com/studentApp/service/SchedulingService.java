@@ -65,29 +65,23 @@ public class SchedulingService {
 	private SubjectMapper subjectMapper;
 
 	public void callPythonScript(String semesterId) throws IOException, InterruptedException {
-		// Đường dẫn đến trình thông dịch Python
 		String pythonPath = "C:\\Users\\phamm\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe";
-		// Đường dẫn đến script Python
 		String scriptPath = "D:\\workspace\\DoAn\\Java\\TruongHoc\\src\\main\\resources\\scripts\\schedule.py";
 
-		// Tạo ProcessBuilder với tham số đúng --semesterId
 		ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath, "--semesterId", semesterId);
-		pb.redirectErrorStream(true); // Gộp luồng lỗi và đầu ra
+		pb.redirectErrorStream(true);
 
-		// Khởi động quá trình
 		Process process = pb.start();
 
-		// Ghi lại đầu ra để debug
 		StringBuilder output = new StringBuilder();
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				output.append(line).append("\n");
-				System.out.println(line); // In trực tiếp để debug
+				System.out.println(line);
 			}
 		}
 
-		// Kiểm tra mã thoát
 		int exitCode = process.waitFor();
 		if (exitCode != 0) {
 			throw new RuntimeException(
@@ -97,7 +91,6 @@ public class SchedulingService {
 
 	public void generateSchedule(String semesterId) throws IOException, InterruptedException {
 		callPythonScript(semesterId);
-		// Logic xử lý thêm nếu cần
 	}
 
 	public void registerSubjects(TeacherSubjectRegistrationRequest request) {
@@ -154,10 +147,6 @@ public class SchedulingService {
 		return subjectRepository.findByTeacherIdAndSemesterId(teacherId, semesterId).stream().map(subjectMapper::toDTO)
 				.collect(Collectors.toList());
 	}
-
-//	public void generateSchedule(Long semesterId) throws Exception {
-//		callPythonScript("generate", semesterId.toString());
-//	}
 
 	public ScheduleResponse addSchedule(ScheduleResponse scheduleDTO) {
 		Schedule schedule = scheduleMapper.toEntity(scheduleDTO);
@@ -218,14 +207,32 @@ public class SchedulingService {
 				.collect(Collectors.toList());
 	}
 
-	public List<ScheduleResponse> getStudentSchedule(Long studentId, Long semesterId) {
-		List<Schedule> schedules = scheduleRepository.findByStudentIdAndSemesterId(studentId, semesterId);
-		return schedules.stream().map(scheduleMapper::toDTO).collect(Collectors.toList());
+	public List<ScheduleResponse> getScheduleByClass(Long classId, String status) {
+		List<Schedule> schedules = scheduleRepository.findByClassId(classId);
+		return filterSchedules(schedules, null, status);
 	}
 
-	public List<ScheduleResponse> getTeacherSchedule(Long teacherId, Long semesterId) {
+	public List<ScheduleResponse> getStudentSchedule(Long studentId, Long semesterId, Integer week, Long subjectId,
+			String status) {
+		if (week == null) {
+			throw new IllegalArgumentException("Tham số 'week' là bắt buộc khi lấy lịch sinh viên theo tuần");
+		}
+		List<Schedule> schedules = scheduleRepository.findByStudentIdAndSemesterIdAndWeek(studentId, semesterId, week);
+		return filterSchedules(schedules, subjectId, status);
+	}
+
+	public List<ScheduleResponse> getTeacherSchedule(Long teacherId, Long semesterId, Long subjectId, String status) {
 		List<Schedule> schedules = scheduleRepository.findByTeacherIdAndSemesterId(teacherId, semesterId);
-		return schedules.stream().map(scheduleMapper::toDTO).collect(Collectors.toList());
+		return filterSchedules(schedules, subjectId, status);
+	}
+
+	public List<ScheduleResponse> getTeacherSchedule(Long teacherId, Long semesterId, Integer week, Long subjectId,
+			String status) {
+		if (week == null) {
+			throw new IllegalArgumentException("Tham số 'week' là bắt buộc khi lấy lịch giảng viên theo tuần");
+		}
+		List<Schedule> schedules = scheduleRepository.findByTeacherIdAndSemesterIdAndWeek(teacherId, semesterId, week);
+		return filterSchedules(schedules, subjectId, status);
 	}
 
 	public List<ScheduleResponse> getStudentScheduleByDay(Long studentId, LocalDate date) {
@@ -238,6 +245,12 @@ public class SchedulingService {
 		return schedules.stream().map(scheduleMapper::toDTO).collect(Collectors.toList());
 	}
 
+	public List<ScheduleResponse> getStudentScheduleByWeek(Long studentId, LocalDate startDate, LocalDate endDate,
+			Long subjectId, String status) {
+		List<Schedule> schedules = scheduleRepository.findByStudentIdAndWeek(studentId, startDate, endDate);
+		return filterSchedules(schedules, subjectId, status);
+	}
+
 	public List<ScheduleResponse> getTeacherScheduleByDay(Long teacherId, LocalDate date) {
 		List<Schedule> schedules = scheduleRepository.findByTeacherIdAndDate(teacherId, date);
 		return schedules.stream().map(scheduleMapper::toDTO).collect(Collectors.toList());
@@ -246,5 +259,32 @@ public class SchedulingService {
 	public List<ScheduleResponse> getTeacherScheduleByWeek(Long teacherId, LocalDate startDate, LocalDate endDate) {
 		List<Schedule> schedules = scheduleRepository.findByTeacherIdAndWeek(teacherId, startDate, endDate);
 		return schedules.stream().map(scheduleMapper::toDTO).collect(Collectors.toList());
+	}
+
+	public List<ScheduleResponse> getTeacherScheduleByWeek(Long teacherId, LocalDate startDate, LocalDate endDate,
+			Long subjectId, String status) {
+		List<Schedule> schedules = scheduleRepository.findByTeacherIdAndWeek(teacherId, startDate, endDate);
+		return filterSchedules(schedules, subjectId, status);
+	}
+
+	public List<ScheduleResponse> getCombinedScheduleByClass(Long classId, LocalDate startDate, LocalDate endDate,
+			String status) {
+		List<Schedule> schedules = scheduleRepository.findByClassIdAndWeek(classId, startDate, endDate);
+		return filterSchedules(schedules, null, status);
+	}
+
+	public List<ScheduleResponse> getCombinedScheduleByClassAndWeek(Long classId, Integer week, String status) {
+		if (week == null) {
+			throw new IllegalArgumentException("Tham số 'week' là bắt buộc khi lấy lịch lớp theo tuần");
+		}
+		List<Schedule> schedules = scheduleRepository.findByClassIdAndWeekNumber(classId, week);
+		return filterSchedules(schedules, null, status);
+	}
+
+	private List<ScheduleResponse> filterSchedules(List<Schedule> schedules, Long subjectId, String status) {
+		return schedules.stream()
+				.filter(s -> subjectId == null || (s.getSubject() != null && s.getSubject().getId().equals(subjectId)))
+				.filter(s -> status == null || s.getStatus().equalsIgnoreCase(status)).map(scheduleMapper::toDTO)
+				.collect(Collectors.toList());
 	}
 }

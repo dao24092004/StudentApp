@@ -106,8 +106,7 @@ public class SchedulingController {
 	public ResponseEntity<Map<String, String>> generateSchedule(@RequestBody ScheduleRequest request) {
 		logger.info("Nhận yêu cầu tạo lịch với semesterId={}", request.getSemesterId());
 		try {
-			schedulingService.generateSchedule(request.getSemesterId().toString()); // Chuyển sang String để khớp với
-																					// Python
+			schedulingService.generateSchedule(request.getSemesterId().toString());
 			logger.info("Tạo lịch thành công cho semesterId={}", request.getSemesterId());
 			return ResponseEntity.ok(Map.of("status", "success"));
 		} catch (Exception e) {
@@ -195,10 +194,27 @@ public class SchedulingController {
 	@GetMapping("/students/{studentId}/schedules")
 	@PreAuthorize("hasAuthority('CLASS_VIEW')")
 	public ResponseEntity<List<ScheduleResponse>> getStudentSchedule(@PathVariable Long studentId,
-			@RequestParam Long semesterId) {
-		logger.info("Lấy lịch cho sinh viên studentId={} và semesterId={}", studentId, semesterId);
+			@RequestParam Long semesterId, @RequestParam(required = false) Integer week,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(required = false) Long subjectId,
+			@RequestParam(required = false, defaultValue = "CONFIRMED") String status) {
+		logger.info(
+				"Lấy lịch cho sinh viên studentId={} và semesterId={} với week={} hoặc từ {} đến {}, subjectId={}, status={}",
+				studentId, semesterId, week, startDate, endDate, subjectId, status);
 		try {
-			List<ScheduleResponse> schedules = schedulingService.getStudentSchedule(studentId, semesterId);
+			List<ScheduleResponse> schedules;
+			if (week != null) {
+				logger.debug("Gọi service với week: {}", week);
+				schedules = schedulingService.getStudentSchedule(studentId, semesterId, week, subjectId, status);
+			} else if (startDate != null && endDate != null) {
+				logger.debug("Gọi service với startDate: {} và endDate: {}", startDate, endDate);
+				schedules = schedulingService.getStudentScheduleByWeek(studentId, startDate, endDate, subjectId,
+						status);
+			} else {
+				logger.warn("Yêu cầu không hợp lệ: Thiếu tham số 'week' hoặc 'startDate' và 'endDate'");
+				return ResponseEntity.badRequest().body(null);
+			}
 			logger.info("Lấy thành công {} lịch cho sinh viên studentId={}", schedules.size(), studentId);
 			return ResponseEntity.ok(schedules);
 		} catch (Exception e) {
@@ -210,14 +226,53 @@ public class SchedulingController {
 	@GetMapping("/teachers/{teacherId}/schedules")
 	@PreAuthorize("hasAuthority('CLASS_VIEW')")
 	public ResponseEntity<List<ScheduleResponse>> getTeacherSchedule(@PathVariable Long teacherId,
-			@RequestParam Long semesterId) {
-		logger.info("Lấy lịch cho giảng viên teacherId={} và semesterId={}", teacherId, semesterId);
+			@RequestParam Long semesterId, @RequestParam(required = false) Integer week,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(required = false) Long subjectId,
+			@RequestParam(required = false, defaultValue = "CONFIRMED") String status) {
+		logger.info("Lấy lịch cho giảng viên teacherId={} và semesterId={} với week={} hoặc từ {} đến {}", teacherId,
+				semesterId, week, startDate, endDate);
 		try {
-			List<ScheduleResponse> schedules = schedulingService.getTeacherSchedule(teacherId, semesterId);
+			List<ScheduleResponse> schedules;
+			if (week != null) {
+				schedules = schedulingService.getTeacherSchedule(teacherId, semesterId, week, subjectId, status);
+			} else if (startDate != null && endDate != null) {
+				schedules = schedulingService.getTeacherScheduleByWeek(teacherId, startDate, endDate, subjectId,
+						status);
+			} else {
+				schedules = schedulingService.getTeacherSchedule(teacherId, semesterId, subjectId, status);
+			}
 			logger.info("Lấy thành công {} lịch cho giảng viên teacherId={}", schedules.size(), teacherId);
 			return ResponseEntity.ok(schedules);
 		} catch (Exception e) {
 			logger.error("Lỗi khi lấy lịch cho giảng viên: ", e);
+			return ResponseEntity.status(500).body(null);
+		}
+	}
+
+	@GetMapping("/schedules/class/{classId}/combined")
+	@PreAuthorize("hasAuthority('CLASS_VIEW')")
+	public ResponseEntity<List<ScheduleResponse>> getCombinedScheduleByClass(@PathVariable Long classId,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(required = false) Integer week,
+			@RequestParam(required = false, defaultValue = "CONFIRMED") String status) {
+		logger.info("Lấy lịch tổng hợp cho lớp classId={} với week={} hoặc từ {} đến {}", classId, week, startDate,
+				endDate);
+		try {
+			List<ScheduleResponse> schedules;
+			if (week != null) {
+				schedules = schedulingService.getCombinedScheduleByClassAndWeek(classId, week, status);
+			} else if (startDate != null && endDate != null) {
+				schedules = schedulingService.getCombinedScheduleByClass(classId, startDate, endDate, status);
+			} else {
+				schedules = schedulingService.getScheduleByClass(classId, status);
+			}
+			logger.info("Lấy thành công {} lịch cho lớp classId={}", schedules.size(), classId);
+			return ResponseEntity.ok(schedules);
+		} catch (Exception e) {
+			logger.error("Lỗi khi lấy lịch tổng hợp cho lớp: ", e);
 			return ResponseEntity.status(500).body(null);
 		}
 	}

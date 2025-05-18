@@ -21,7 +21,7 @@ public class Schedule {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "class_id")
+	@JoinColumn(name = "class_id", nullable = false)
 	private Class classEntity;
 
 	@ManyToOne
@@ -31,8 +31,10 @@ public class Schedule {
 	@Column(name = "day_of_week", nullable = false)
 	private String dayOfWeek;
 
+	@Column(name = "slot", nullable = false)
 	private Integer slot;
 
+	@Column(name = "period", nullable = false)
 	private Integer period;
 
 	@Column(name = "start_time", nullable = false)
@@ -40,4 +42,16 @@ public class Schedule {
 
 	@Column(name = "end_time", nullable = false)
 	private LocalDateTime endTime;
+
+	@ManyToOne
+	@JoinColumn(name = "semester_id", nullable = false)
+	private Semester semester;
+
+	@Column(name = "week", nullable = false)
+	private Integer week;
+
+	@Column(name = "status", nullable = false)
+	private String status;
+	// Thêm mối quan hệ với ClassGroup qua Class
+	// Không cần thêm trực tiếp classGroup, vì đã có qua classEntity
 }
