@@ -46,7 +46,7 @@ public class StudentResponse {
 	private String classGroupName; // Chuyển từ Long thành String
 
 	@JsonProperty("user_id")
-	private String userName; // Chuyển từ Long thành String
+	private Long userId; // Chuyển từ Long thành String
 
 	@JsonProperty("student_id")
     private Long studentId;
