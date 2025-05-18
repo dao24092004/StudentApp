@@ -47,4 +47,7 @@ public class StudentResponse {
 
 	@JsonProperty("user_id")
 	private String userName; // Chuyển từ Long thành String
+
+	@JsonProperty("student_id")
+    private Long studentId;
 }

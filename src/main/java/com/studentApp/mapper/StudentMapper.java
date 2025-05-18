@@ -11,6 +11,7 @@ public class StudentMapper {
 		}
 
 		StudentResponse response = new StudentResponse();
+		response.setStudentId(student.getId());
 		response.setStudentCode(student.getStudentCode());
 		response.setStudentName(student.getStudentName());
 		response.setMajorName(student.getMajor() != null ? student.getMajor().getMajorName() : null);
