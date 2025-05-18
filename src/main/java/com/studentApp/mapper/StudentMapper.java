@@ -22,7 +22,7 @@ public class StudentMapper {
 		response.setPhoneNumber(student.getPhoneNumber());
 		response.setStudentEmail(generateEmail(student.getStudentName(), student.getStudentCode())); // Thêm logic sinh
 		response.setClassGroupName(student.getClassGroup() != null ? student.getClassGroup().getGroupName() : null);
-	    response.setUserName(student.getUser() != null ? student.getUser().getUsername() : null);
+	    response.setUserId(student.getUser().getId());
 
 		return response;
 	}
