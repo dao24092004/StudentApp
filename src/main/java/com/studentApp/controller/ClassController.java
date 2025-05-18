@@ -24,7 +24,7 @@ public class ClassController {
 	@Autowired
 	private ClassService classService;
 
-	@PostMapping("/create/schedules")
+	@PostMapping("/create")
 	@PreAuthorize("hasAuthority('CLASS_CREATE')")
 	public ResponseEntity<ClassResponseDTO> createClass(@RequestBody ClassRequestDTO dto) {
 		return ResponseEntity.ok(classService.createClass(dto));
