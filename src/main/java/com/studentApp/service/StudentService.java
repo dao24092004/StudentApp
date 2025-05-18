@@ -1,6 +1,7 @@
 package com.studentApp.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -90,7 +91,7 @@ public class StudentService {
 		// Kiểm tra trùng lặp email
 		if (userRepository.existsByEmail(request.getEmailUser())) {
 			logger.warn("User with email {} already exists", request.getEmailUser());
-			throw new AppException(ErrorCode.USER_NOT_FOUND,
+			throw new AppException(ErrorCode.USERNAME_ALREADY_EXISTS,
 					"User with email '" + request.getEmailUser() + "' already exists.");
 		}
 
@@ -104,7 +105,7 @@ public class StudentService {
 		// Kiểm tra classGroupId
 		ClassGroup classGroup = classGroupRepository.findById(request.getClass_group_id()).orElseThrow(() -> {
 			logger.warn("Class group with ID {} not found", request.getClass_group_id());
-			return new AppException(ErrorCode.USERNAME_ALREADY_EXISTS,
+			return new AppException(ErrorCode.CLASS_NOT_FOUND,
 					"Class group with ID " + request.getClass_group_id() + " not found.");
 		});
 
@@ -123,14 +124,13 @@ public class StudentService {
 		student.setStudentName(request.getStudent_name());
 		student.setDateOfBirth(request.getDate_of_birth());
 
-		// Chuyển đổi String gender thành enum Gender
-		try {
-			Gender gender = Gender.valueOf(request.getGender());
-			student.setGender(gender);
-		} catch (IllegalArgumentException e) {
-			throw new AppException(ErrorCode.INVALID_CREDENTIALS,
-					"Invalid gender value: " + request.getGender() + ". Allowed values are: Male, Female");
+		// Kiểm tra gender hợp lệ
+		List<String> validGenders = Arrays.asList("Male", "Female");
+		if (!validGenders.contains(request.getGender())) {
+			throw new AppException(ErrorCode.INVALID_REQUEST, "Gender must be one of: Male, Female");
 		}
+		Gender gender = Gender.valueOf(request.getGender());
+		student.setGender(gender);
 
 		student.setAddress(request.getAddress());
 		student.setPhoneNumber(request.getPhone_number());
@@ -178,24 +178,29 @@ public class StudentService {
 							"Student with phone number '" + request.getPhoneNumber() + "' already exists.");
 				}
 			});
+			student.setPhoneNumber(request.getPhoneNumber());
 		}
 
-		student.setAddress(request.getAddress());
-		student.setDateOfBirth(request.getDateOfBirth());
+		if (request.getStudentName() != null) {
+			student.setStudentName(request.getStudentName());
+		}
 
-		// Chuyển đổi String gender thành enum Gender
+		if (request.getAddress() != null) {
+			student.setAddress(request.getAddress());
+		}
+
+		if (request.getDateOfBirth() != null) {
+			student.setDateOfBirth(request.getDateOfBirth());
+		}
+
 		if (request.getGender() != null) {
-			try {
-				Gender gender = Gender.valueOf(request.getGender());
-				student.setGender(gender);
-			} catch (IllegalArgumentException e) {
-				throw new AppException(ErrorCode.INVALID_CREDENTIALS,
-						"Invalid gender value: " + request.getGender() + ". Allowed values are: Male, Female");
+			List<String> validGenders = Arrays.asList("Male", "Female");
+			if (!validGenders.contains(request.getGender())) {
+				throw new AppException(ErrorCode.INVALID_REQUEST, "Gender must be one of: Male, Female");
 			}
+			Gender gender = Gender.valueOf(request.getGender());
+			student.setGender(gender);
 		}
-
-		student.setPhoneNumber(request.getPhoneNumber());
-		student.setStudentName(request.getStudentName());
 
 		Student updatedStudent = studentRepository.save(student);
 		logger.info("Updated student with ID {}", updatedStudent.getId());

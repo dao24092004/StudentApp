@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class ClassGroupResponseDTO {
+	private Long id;
 	private String groupCode;
 	private String groupName;
 	private String majorName; // Thay vì majorId

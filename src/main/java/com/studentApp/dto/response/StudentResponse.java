@@ -40,11 +40,11 @@ public class StudentResponse {
 	private String studentEmail;
 
 	@JsonProperty("major_id")
-	private String majorId; // Chuyển từ Long thành String
+	private String majorName; // Chuyển từ Long thành String
 
 	@JsonProperty("class_group_id")
-	private String classGroupId; // Chuyển từ Long thành String
+	private String classGroupName; // Chuyển từ Long thành String
 
 	@JsonProperty("user_id")
-	private String userId; // Chuyển từ Long thành String
+	private String userName; // Chuyển từ Long thành String
 }

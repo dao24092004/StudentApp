@@ -3,6 +3,7 @@ package com.studentApp.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.studentApp.entity.Student;
@@ -21,4 +22,11 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 	// Kiểm tra sự tồn tại của user_id (đảm bảo một user chỉ liên kết với một
 	// student)
 	boolean existsByUserId(Long userId);
+
+	// Tìm student theo userId
+	Optional<Student> findByUserId(Long userId);
+
+	// Thêm phương thức tìm Student theo username của User liên kết
+	@Query("SELECT s FROM Student s JOIN FETCH s.user u WHERE LOWER(u.username) = LOWER(:username)")
+	Optional<Student> findByUserUsername(String username);
 }

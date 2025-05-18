@@ -65,7 +65,7 @@ public class TeacherService {
 		// Kiểm tra trùng lặp phone number
 		if (teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber()).isPresent()) {
 			logger.warn("Teacher with phone number {} already exists", request.getTeacherPhoneNumber());
-			throw new AppException(ErrorCode.TEACHER_NOT_FOUND,
+			throw new AppException(ErrorCode.TEACHER_ALLREADY_EXISTS,
 					"Teacher with phone number '" + request.getTeacherPhoneNumber() + "' already exists.");
 		}
 
@@ -76,14 +76,17 @@ public class TeacherService {
 					"Department with ID " + request.getDeptId() + " not found.");
 		});
 
-		// Kiểm tra email trùng lặp và lấy user nếu tồn tại
-		Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
+		// Kiểm tra và xử lý user
 		User user;
+		Optional<User> userOptional = userRepository.findByEmail(request.getUserEmail());
 		if (userOptional.isPresent()) {
 			user = userOptional.get();
-			Role roleEntity = roleRepository.findByRoleName("TEACHER")
+			Role teacherRole = roleRepository.findByRoleName("TEACHER")
 					.orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-			user.setRole(roleEntity);
+			if (!user.getRole().getRoleName().equals("TEACHER")) {
+				throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS,
+						"User with email '" + request.getUserEmail() + "' already exists with a different role.");
+			}
 		} else {
 			user = new User();
 			user.setUsername(request.getTeacherName());
@@ -125,7 +128,7 @@ public class TeacherService {
 		teacherRepository.findByTeacherPhoneNumber(request.getTeacherPhoneNumber()).ifPresent(existing -> {
 			if (!existing.getId().equals(id)) {
 				logger.warn("Teacher with phone number {} already exists", request.getTeacherPhoneNumber());
-				throw new AppException(ErrorCode.TEACHER_NOT_FOUND,
+				throw new AppException(ErrorCode.TEACHER_ALLREADY_EXISTS,
 						"Teacher with phone number '" + request.getTeacherPhoneNumber() + "' already exists.");
 			}
 		});
@@ -139,12 +142,18 @@ public class TeacherService {
 			teacher.setDepartment(department);
 		}
 
-		teacher.setTeacherAddress(request.getTeacherAddress());
-		teacher.setTeacherDateOfBirth(request.getTeacherDateOfBirth());
-		teacher.setTeacherEmail(request.getTeacherEmail());
-		teacher.setTeacherGender(request.getTeacherGender());
-		teacher.setTeacherName(request.getTeacherName());
-		teacher.setTeacherPhoneNumber(request.getTeacherPhoneNumber());
+		if (request.getTeacherName() != null)
+			teacher.setTeacherName(request.getTeacherName());
+		if (request.getTeacherDateOfBirth() != null)
+			teacher.setTeacherDateOfBirth(request.getTeacherDateOfBirth());
+		if (request.getTeacherGender() != null)
+			teacher.setTeacherGender(request.getTeacherGender());
+		if (request.getTeacherAddress() != null)
+			teacher.setTeacherAddress(request.getTeacherAddress());
+		if (request.getTeacherPhoneNumber() != null)
+			teacher.setTeacherPhoneNumber(request.getTeacherPhoneNumber());
+		if (request.getTeacherEmail() != null)
+			teacher.setTeacherEmail(request.getTeacherEmail());
 
 		Teacher updatedTeacher = teacherRepository.save(teacher);
 		logger.info("Updated teacher with ID {}", updatedTeacher.getId());

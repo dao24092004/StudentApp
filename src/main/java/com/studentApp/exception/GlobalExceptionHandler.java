@@ -16,25 +16,31 @@ import com.studentApp.dto.response.ApiResponse;
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
+			MethodArgumentNotValidException ex) {
 		Map<String, String> errors = new HashMap<>();
 		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
 			errors.put(error.getField(), error.getDefaultMessage());
 		}
-		ApiResponse<Object> response = new ApiResponse<>("error", errors);
+		ApiResponse<Map<String, String>> response = new ApiResponse<>("error", errors);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
 	@ExceptionHandler(AppException.class)
-	public ResponseEntity<ApiResponse<Object>> handleAppException(AppException ex) {
-		ApiResponse<Object> response = new ApiResponse<>("error",
-				ex.getErrorCode().getCode() + ": " + ex.getErrorCode().getMessage());
+	public ResponseEntity<ApiResponse<Map<String, Object>>> handleAppException(AppException ex) {
+		Map<String, Object> errorDetails = new HashMap<>();
+		errorDetails.put("errorCode", ex.getErrorCode().getCode());
+		errorDetails.put("message", ex.getErrorCode().getMessage());
+		ApiResponse<Map<String, Object>> response = new ApiResponse<>("error", errorDetails);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception ex) {
-		ApiResponse<Object> response = new ApiResponse<>("error", "An unexpected error occurred: " + ex.getMessage());
+	public ResponseEntity<ApiResponse<Map<String, String>>> handleGeneralException(Exception ex) {
+		Map<String, String> errorDetails = new HashMap<>();
+		errorDetails.put("errorCode", "500");
+		errorDetails.put("message", "An unexpected error occurred: " + ex.getMessage());
+		ApiResponse<Map<String, String>> response = new ApiResponse<>("error", errorDetails);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	}
 }

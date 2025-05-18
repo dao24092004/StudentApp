@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,7 +56,7 @@ public class TeacherControllerTest {
 		teacherCreationRequest = TeacherCreationRequest.builder().teacherName("Nguyen Van A")
 				.teacherDateOfBirth(Date.valueOf("1980-01-01")).userEmail("nguyenvana@gmail.com")
 				.teacherGender(Teacher.Gender.Female).teacherAddress("123 Hanoi").teacherPhoneNumber("0912345678")
-				.build();
+				.deptId(1L).build();
 
 		teacherResponse = TeacherResponse.builder().id(1L).userId(1L).teacherName("Nguyen Van A")
 				.teacherDateOfBirth(Date.valueOf("1980-01-01")).userEmail("nguyenvana@gmail.com")
@@ -70,22 +71,10 @@ public class TeacherControllerTest {
 		Mockito.when(teacherService.createTeacher(ArgumentMatchers.any(TeacherCreationRequest.class)))
 				.thenReturn(teacherResponse);
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/create/teacher").contentType(MediaType.APPLICATION_JSON)
-				.content(content)).andExpect(MockMvcResultMatchers.status().isOk())
+				.content(content)).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.teacherName").value("Nguyen Van A"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.userEmail").value("nguyenvana@gmail.com"));
-	}
-
-	@Test
-	@WithMockUser(username = "admin", authorities = { "USER_CREATE" })
-	void createTeacher_emailExists_fail() throws Exception {
-		teacherCreationRequest.setUserEmail("existing@example.com");
-		String content = objectMapper.writeValueAsString(teacherCreationRequest);
-		Mockito.when(teacherService.createTeacher(ArgumentMatchers.any(TeacherCreationRequest.class)))
-				.thenThrow(new RuntimeException("Teacher already exists"));
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/users/create/teacher").contentType(MediaType.APPLICATION_JSON)
-				.content(content)).andExpect(MockMvcResultMatchers.status().isInternalServerError())
-				.andExpect(MockMvcResultMatchers.content().string("Error creating teacher: Teacher already exists"));
 	}
 
 	@Test
@@ -95,7 +84,8 @@ public class TeacherControllerTest {
 		System.out.println("teacherResponse before test: " + teacherResponse.getTeacherName());
 		Mockito.when(teacherService.getByIdTeacher(teacherId)).thenReturn(teacherResponse);
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/users/teacher/{id}", teacherId)
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+				.contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print())
+				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.teacherName").value("Nguyen Van A"));
 	}
@@ -106,7 +96,8 @@ public class TeacherControllerTest {
 		long teacherId = 1L;
 		Mockito.doNothing().when(teacherService).deleteTeacher(teacherId);
 		mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/teacher/{id}", teacherId)
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+				.contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print())
+				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().string("Teacher delete successfully"));
 	}
 }

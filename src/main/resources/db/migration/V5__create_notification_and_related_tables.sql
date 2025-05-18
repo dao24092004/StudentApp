@@ -15,6 +15,7 @@ CREATE TABLE tbl_notification_recipient (
     id SERIAL PRIMARY KEY,
     notification_id INTEGER,
     recipient_id INTEGER,
+    is_read BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_notif_recipient_notification FOREIGN KEY (notification_id) REFERENCES tbl_notification(id),
     CONSTRAINT fk_notif_recipient_user FOREIGN KEY (recipient_id) REFERENCES tbl_user(id)
 );

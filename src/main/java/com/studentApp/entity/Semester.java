@@ -17,6 +17,8 @@ public class Semester {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Column(name = "semester_name", nullable = false)
+	private String semesterName;
 
 	@Column(name = "start_date")
 	private LocalDate startDate;

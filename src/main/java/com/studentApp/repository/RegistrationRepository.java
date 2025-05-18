@@ -14,6 +14,8 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
 	List<Registration> findByStudentIdAndSemesterId(@Param("studentId") Long studentId,
 			@Param("semesterId") Long semesterId);
 
+	boolean existsByClassEntityIdAndStudentId(Long classId, Long studentId);
+
 	@Query("SELECT r FROM Registration r WHERE r.classEntity.id = :classId")
 	List<Registration> findByClassEntityId(@Param("classId") Long classId);
 }
