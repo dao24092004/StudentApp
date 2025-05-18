@@ -36,4 +36,12 @@ public class SemesterService {
 		dto.setEndDate(semester.getEndDate());
 		return dto;
 	}
+
+	@Transactional
+	public void deleteSemesterById(Long id) {
+		if (!semesterRepository.existsById(id)) {
+			throw new IllegalArgumentException("Semester with id " + id + " does not exist.");
+		}
+		semesterRepository.deleteById(id);
+	}
 }
