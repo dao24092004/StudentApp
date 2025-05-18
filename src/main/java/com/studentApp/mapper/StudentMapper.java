@@ -20,6 +20,9 @@ public class StudentMapper {
 		response.setAddress(student.getAddress());
 		response.setPhoneNumber(student.getPhoneNumber());
 		response.setStudentEmail(generateEmail(student.getStudentName(), student.getStudentCode())); // Thêm logic sinh
+		response.setClassGroupName(student.getClassGroup() != null ? student.getClassGroup().getGroupName() : null);
+	    response.setUserName(student.getUser() != null ? student.getUser().getUsername() : null);
+
 		return response;
 	}
 
