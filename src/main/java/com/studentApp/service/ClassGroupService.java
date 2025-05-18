@@ -48,6 +48,7 @@ public class ClassGroupService {
 
 	private ClassGroupResponseDTO mapToClassGroupResponseDTO(ClassGroup classGroup) {
 		ClassGroupResponseDTO dto = new ClassGroupResponseDTO();
+		dto.setId(classGroup.getId());
 		dto.setGroupCode(classGroup.getGroupCode());
 		dto.setGroupName(classGroup.getGroupName());
 		dto.setMajorName(classGroup.getMajor().getMajorName());

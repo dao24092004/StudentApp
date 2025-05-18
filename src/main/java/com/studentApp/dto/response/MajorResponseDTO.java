@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class MajorResponseDTO {
+	private Long id;
 	private String majorCode;
 	private String majorName;
 	private String deptName; // Thay vì deptId
