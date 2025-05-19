@@ -1,11 +1,16 @@
 package com.studentApp.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -92,4 +97,29 @@ public class TeacherController {
 		teacherService.deleteTeacher(id);
 		return ResponseEntity.ok("Teacher delete successfully");
 	}
+	
+	@GetMapping("/teacher/export")
+    @PreAuthorize("hasAuthority('USER_VIEW')")
+    @Operation(summary = "Export teacher list to Excel")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Export successful"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<InputStreamResource> exportTeachersToExcel() {
+        log.info("Exporting teacher list to Excel");
+        try {
+            ByteArrayInputStream in = teacherService.exportTeachersToExcel();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=teachers.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(new InputStreamResource(in));
+
+        } catch (IOException e) {
+            log.error("Failed to export teachers to Excel", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

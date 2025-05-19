@@ -1,9 +1,19 @@
 package com.studentApp.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,4 +190,54 @@ public class TeacherService {
 				.replaceAll("[^a-z0-9]", "");
 		return normalized + "_" + teacherCode.toLowerCase() + "@university.edu.vn";
 	}
+
+	
+	public ByteArrayInputStream exportTeachersToExcel() throws IOException {
+        List<Teacher> teachers = teacherRepository.findAll();
+
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Teachers");
+
+            // Header row
+            String[] headers = {
+                "ID", "Mã GV", "Tên GV", "Ngày sinh", "Giới tính", "Số ĐT", "Địa chỉ", "Email", "Khoa"
+            };
+
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            // Data rows
+            int rowIdx = 1;
+            for (Teacher teacher : teachers) {
+                Row row = sheet.createRow(rowIdx++);
+
+                row.createCell(0).setCellValue(teacher.getId());
+                row.createCell(1).setCellValue(teacher.getTeacherCode());
+                row.createCell(2).setCellValue(teacher.getTeacherName());
+
+                if (teacher.getTeacherDateOfBirth() != null) {
+                    Cell dateCell = row.createCell(3);
+                    dateCell.setCellValue(teacher.getTeacherDateOfBirth());
+                    CellStyle dateStyle = workbook.createCellStyle();
+                    CreationHelper createHelper = workbook.getCreationHelper();
+                    dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+                    dateCell.setCellStyle(dateStyle);
+                } else {
+                    row.createCell(3).setCellValue("");
+                }
+
+                row.createCell(4).setCellValue(teacher.getTeacherGender() != null ? teacher.getTeacherGender().name() : "");
+                row.createCell(5).setCellValue(teacher.getTeacherPhoneNumber() != null ? teacher.getTeacherPhoneNumber() : "");
+                row.createCell(6).setCellValue(teacher.getTeacherAddress() != null ? teacher.getTeacherAddress() : "");
+                row.createCell(7).setCellValue(teacher.getTeacherEmail() != null ? teacher.getTeacherEmail() : "");
+                row.createCell(8).setCellValue(teacher.getDepartment() != null ? teacher.getDepartment().getDeptName() : "");
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+    }
 }
