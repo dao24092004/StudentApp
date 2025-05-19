@@ -1,9 +1,14 @@
 package com.studentApp.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.http.HttpHeaders;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+import org.springframework.http.MediaType;
 @RestController
 @RequestMapping("/api/users")
 public class StudentController {
@@ -85,5 +91,30 @@ public class StudentController {
 	public ResponseEntity<String> deleteStudEntity9Entity(@PathVariable Long id) {
 		studentService.deleteStudent(id);
 		return ResponseEntity.ok("Student deleted successfully");
+	}
+
+	@GetMapping("/student/export")
+	@PreAuthorize("hasAuthority('USER_VIEW')")
+	@Operation(summary = "Export student list to Excel")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "Export successful"),
+		@ApiResponse(responseCode = "500", description = "Internal server error")
+	})
+	public ResponseEntity<InputStreamResource> exportStudentsToExcel() {
+		log.info("Exporting student list to Excel");
+		try {
+			ByteArrayInputStream in = studentService.exportStudentsToExcel();
+			org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+			headers.add("Content-Disposition", "attachment; filename=students.xlsx");
+
+			return ResponseEntity.ok()
+					.headers(headers)
+					.contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+					.body(new InputStreamResource(in));
+
+		} catch (IOException e) {
+			log.error("Failed to export students to Excel", e);
+			return ResponseEntity.internalServerError().build();
+		}
 	}
 }

@@ -1,9 +1,19 @@
 package com.studentApp.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -224,4 +234,53 @@ public class StudentService {
 		int currentYear = java.time.Year.now().getValue();
 		return "SV" + currentYear + String.format("%05d", id);
 	}
+	public ByteArrayInputStream exportStudentsToExcel() throws IOException {
+    List<Student> students = studentRepository.findAll();
+
+    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        Sheet sheet = workbook.createSheet("Students");
+
+        // Header row
+        String[] headers = {
+            "ID", "Mã SV", "Tên SV", "Ngày sinh", "Giới tính", "Số ĐT", "Địa chỉ", "Ngành", "Lớp"
+        };
+
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Data rows
+        int rowIdx = 1;
+        for (Student student : students) {
+            Row row = sheet.createRow(rowIdx++);
+
+            row.createCell(0).setCellValue(student.getId());
+            row.createCell(1).setCellValue(student.getStudentCode());
+            row.createCell(2).setCellValue(student.getStudentName());
+
+            if (student.getDateOfBirth() != null) {
+                Cell dateCell = row.createCell(3);
+                dateCell.setCellValue(student.getDateOfBirth());
+                CellStyle dateStyle = workbook.createCellStyle();
+                CreationHelper createHelper = workbook.getCreationHelper();
+                dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+                dateCell.setCellStyle(dateStyle);
+            } else {
+                row.createCell(3).setCellValue("");
+            }
+
+            row.createCell(4).setCellValue(student.getGender() != null ? student.getGender().name() : "");
+            row.createCell(5).setCellValue(student.getPhoneNumber() != null ? student.getPhoneNumber() : "");
+            row.createCell(6).setCellValue(student.getAddress() != null ? student.getAddress() : "");
+            row.createCell(7).setCellValue(student.getMajor() != null ? student.getMajor().getMajorName() : "");
+            row.createCell(8).setCellValue(student.getClassGroup() != null ? student.getClassGroup().getGroupName() : "");
+        }
+
+        workbook.write(out);
+        return new ByteArrayInputStream(out.toByteArray());
+    }
+}
+
 }
