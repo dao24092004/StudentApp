@@ -25,14 +25,29 @@ public class Schedule {
     private Class classEntity;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    @Column(name = "day_of_week", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "teacher_id", nullable = false)
+    private Teacher teacher;
+
+    @ManyToOne
+    @JoinColumn(name = "semester_id", nullable = false)
+    private Semester semester;
+
+    @Column(name = "week", nullable = false)
+    private Integer week;
+
+    @Column(name = "day_of_week", nullable = false, length = 3)
     private String dayOfWeek;
 
     @Column(name = "slot", nullable = false)
     private Integer slot;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     @Column(name = "period", nullable = false)
     private Integer period;
@@ -42,13 +57,6 @@ public class Schedule {
 
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
-
-    @ManyToOne
-    @JoinColumn(name = "semester_id", nullable = false)
-    private Semester semester;
-
-    @Column(name = "week", nullable = false)
-    private Integer week;
 
     @Column(name = "status", nullable = false)
     private String status;
